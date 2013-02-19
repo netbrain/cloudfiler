@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Update</title>
+</head>
+
+<body>
+	<h1>Update User : {{.Data.Email}}</h1>
+    <form method="post" action="/user/update" autocomplete="off">
+      <input type="hidden" name="id" value="{{.Data.ID}}" />
+      <div>
+        <div>
+          <span>Email:</span>
+          <span><input type="email" name="email" autofocus="autofocus" required="required" value="{{.Data.Email}}" /></span>
+        </div>
+        <div>
+          <span>Password:</span>
+          <span><input type="password" name="password" required="required" pattern=".{8,16}"/></span>
+        </div>
+        <div>
+          <span>Password (again):</span>
+          <span><input type="password" name="password-again" required="required"/></span>
+        </div>        
+      </div>
+      <div><input type="submit" value="Update" /></div>
+    </form>
+</body>
+
+</html>
