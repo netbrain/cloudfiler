@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>List of Roles</title>
+</head>
+
+<body>
+	<h1>List of Roles</h1>
+    <table border="1">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th colspan="2"><a href="/role/create">Create new Role</a></th>
+			</tr>
+		</thead>
+        {{ range .Data }}
+		<tbody>
+        	<tr>
+        	    <td><a href="/role/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
+				<td><a href="/role/delete?id={{ .ID }}">Remove</a></td> 
+				<td><a href="/role/update?id={{ .ID }}">Edit</a></td>
+        	<tr>
+		</tbody>
+        {{ end }}
+    </table>
+</body>
+
+</html>

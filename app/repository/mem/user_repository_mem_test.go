@@ -10,7 +10,7 @@ import (
 var userRepo UserRepositoryMem
 
 func initUserTest() {
-	userRepo = NewUserRepositoryMem()
+	userRepo = NewUserRepository()
 }
 
 func getUser() *User {

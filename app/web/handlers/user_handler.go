@@ -4,7 +4,6 @@ import (
 	"fmt"
 	. "github.com/netbrain/cloudfiler/app/controller"
 	. "github.com/netbrain/cloudfiler/app/web"
-	"log"
 	"net/http"
 )
 
@@ -93,7 +92,6 @@ func (handler UserHandler) Update(ctx *Context) interface{} {
 
 	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
 		if err := data.Validate(); err != nil {
-			log.Println("HAS VALIDATION ERRORS")
 			ctx.AddValidationError(err)
 		} else {
 			if err := handler.controller.Update(data.Id, data.Email, data.Password); err != nil {

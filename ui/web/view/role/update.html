@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Update</title>
+</head>
+
+<body>
+	<h1>Update Role : {{.Data.Name}}</h1>
+    <form method="post" action="/role/update" autocomplete="off">
+      <input type="hidden" name="id" value="{{.Data.ID}}" />
+      <div>
+        <div>
+          <span>Name:</span>
+          <span><input type="name" name="name" autofocus="autofocus" required="required" value="{{.Data.Name}}" /></span>
+        </div>      
+      </div>
+      <div><input type="submit" value="Update" /></div>
+    </form>
+</body>
+
+</html>

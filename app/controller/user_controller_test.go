@@ -6,18 +6,18 @@ import (
 	"testing"
 )
 
-var repo UserRepositoryMem
-var controller UserController
+var userRepo UserRepositoryMem
+var userController UserController
 
 func initUserControllerTest() {
-	repo = NewUserRepository()
-	controller = NewUserController(repo)
+	userRepo = NewUserRepository()
+	userController = NewUserController(userRepo)
 }
 
 func TestGetAllUsersWhenNoneCreated(t *testing.T) {
 	initUserControllerTest()
 
-	if result, _ := controller.Users(); len(result) != 0 {
+	if result, _ := userController.Users(); len(result) != 0 {
 		t.Fatal("There should be no users!")
 	}
 }
@@ -26,8 +26,8 @@ func TestCreateUser(t *testing.T) {
 	initUserControllerTest()
 
 	email := "create@user.test"
-	controller.Create(email, "password")
-	user, _ := repo.FindByEmail(email)
+	userController.Create(email, "password")
+	user, _ := userRepo.FindByEmail(email)
 	if user == nil {
 		t.Fatal("User was not created!")
 	}
@@ -43,11 +43,11 @@ func TestCreateSeveralUsers(t *testing.T) {
 	}
 
 	for _, email := range emails {
-		controller.Create(email, "test")
+		userController.Create(email, "test")
 	}
 
 	for _, email := range emails {
-		user, _ := repo.FindByEmail(email)
+		user, _ := userRepo.FindByEmail(email)
 		if user == nil {
 			t.Fatal("User was not created!")
 		}
@@ -58,7 +58,7 @@ func TestCreateUserWithInvalidPassword(t *testing.T) {
 	initUserControllerTest()
 
 	email := "create@user.test"
-	if err := controller.Create(email, "12"); err == nil {
+	if err := userController.Create(email, "12"); err == nil {
 		t.Fatal("Password should not be valid")
 	}
 }
@@ -67,11 +67,11 @@ func TestDeleteUser(t *testing.T) {
 	initUserControllerTest()
 
 	email := "delete@user.test"
-	controller.Create(email, "password")
-	user, _ := repo.FindByEmail(email)
-	controller.Delete(user.ID)
+	userController.Create(email, "password")
+	user, _ := userRepo.FindByEmail(email)
+	userController.Delete(user.ID)
 
-	all, _ := repo.All()
+	all, _ := userRepo.All()
 	if l := len(all); l != 0 {
 		t.Fatalf("No user should exist, but found %v (%#v)", l, all)
 	}
@@ -80,8 +80,8 @@ func TestDeleteUser(t *testing.T) {
 func TestCreateTwoUsersWithIdenticalEmail(t *testing.T) {
 	initUserControllerTest()
 
-	controller.Create("dup@dup.test", "pwd")
-	if err := controller.Create("dup@dup.test", "pwd"); err == nil {
+	userController.Create("dup@dup.test", "pwd")
+	if err := userController.Create("dup@dup.test", "pwd"); err == nil {
 		t.Fatal("Illegal creation of two users with identical email! this should have failed!")
 	}
 }
@@ -91,8 +91,8 @@ func TestGetUserByID(t *testing.T) {
 	user1 := &User{
 		Email: "test@test.test",
 	}
-	repo.Store(user1)
-	user2, err := controller.User(user1.ID)
+	userRepo.Store(user1)
+	user2, err := userController.User(user1.ID)
 
 	if err != nil {
 		t.Fatalf("Error occured trying to get user by id, %v", err)
@@ -109,7 +109,7 @@ func TestGetUserByID(t *testing.T) {
 
 func TestGetUserByIDWhereNoneExist(t *testing.T) {
 	initUserControllerTest()
-	user, err := controller.User(0)
+	user, err := userController.User(0)
 
 	if err != nil {
 		t.Fatalf("Error occured trying to get user by id, %v", err)
@@ -125,8 +125,8 @@ func TestGetUserByEmail(t *testing.T) {
 	user1 := &User{
 		Email: "test@test.test",
 	}
-	repo.Store(user1)
-	user2, err := controller.UserByEmail(user1.Email)
+	userRepo.Store(user1)
+	user2, err := userController.UserByEmail(user1.Email)
 
 	if err != nil {
 		t.Fatalf("Error occured trying to get user by id, %v", err)
@@ -143,7 +143,7 @@ func TestGetUserByEmail(t *testing.T) {
 
 func TestGetUserByEmailWhereNoneExist(t *testing.T) {
 	initUserControllerTest()
-	user, err := controller.UserByEmail("test@test.test")
+	user, err := userController.UserByEmail("test@test.test")
 
 	if err != nil {
 		t.Fatalf("Error occured trying to get user by id, %v", err)
@@ -159,15 +159,15 @@ func TestUpdateUser(t *testing.T) {
 	user := &User{
 		Email: "test@test.test",
 	}
-	repo.Store(user)
+	userRepo.Store(user)
 
 	email := "new@email.test"
 	pwd := "anotherpwd"
-	if err := controller.Update(user.ID, email, pwd); err != nil {
+	if err := userController.Update(user.ID, email, pwd); err != nil {
 		t.Fatalf("update returned in error %v", err)
 	}
 
-	user, _ = repo.FindById(user.ID)
+	user, _ = userRepo.FindById(user.ID)
 	if user.Email != email {
 		t.Fatal("email not updated")
 	}
@@ -179,7 +179,7 @@ func TestUpdateUser(t *testing.T) {
 
 func TestUpdateUserWhereUserDoNotExist(t *testing.T) {
 	initUserControllerTest()
-	if err := controller.Update(0, "Some@email.test", "passwd"); err == nil {
+	if err := userController.Update(0, "Some@email.test", "passwd"); err == nil {
 		t.Fatal("update did not return in error when it should")
 	}
 }
@@ -189,10 +189,10 @@ func TestUpdateUserWithInvalidPassword(t *testing.T) {
 	user := &User{
 		Email: "test@test.test",
 	}
-	repo.Store(user)
+	userRepo.Store(user)
 
 	pwd := "--"
-	if err := controller.Update(user.ID, user.Email, pwd); err == nil {
+	if err := userController.Update(user.ID, user.Email, pwd); err == nil {
 		t.Fatal("update should return in error")
 	}
 

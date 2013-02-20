@@ -9,7 +9,7 @@ import (
 var roleRepo RoleRepositoryMem
 
 func initRoleTest() {
-	roleRepo = NewRoleRepositoryMem()
+	roleRepo = NewRoleRepository()
 }
 
 func TestRoleStore(t *testing.T) {
