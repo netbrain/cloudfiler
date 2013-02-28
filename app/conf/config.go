@@ -11,9 +11,10 @@ import (
 var Config *config
 
 type config struct {
-	ConfigFilePath  string `json:"-"`
-	ApplicationHome string `json:"applicationHome"`
-	ServerAddr      string `json:"serverAddr"`
+	ConfigFilePath    string `json:"-"`
+	ApplicationHome   string `json:"applicationHome"`
+	ServerAddr        string `json:"serverAddr"`
+	CookieStoreSecret string `json:"cookieStoreSecret"`
 }
 
 func init() {
@@ -23,9 +24,10 @@ func init() {
 
 	wd, _ := os.Getwd()
 	Config = &config{
-		ConfigFilePath:  configFile,
-		ApplicationHome: wd,
-		ServerAddr:      "127.0.0.1:8080",
+		ConfigFilePath:    configFile,
+		ApplicationHome:   wd,
+		ServerAddr:        "127.0.0.1:8080",
+		CookieStoreSecret: "my-secret-cookie-pwd",
 	}
 
 	os.MkdirAll(configHome, 0755)

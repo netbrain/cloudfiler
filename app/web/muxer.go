@@ -3,6 +3,8 @@ package web
 import (
 	"bufio"
 	"fmt"
+	"github.com/gorilla/sessions"
+	. "github.com/netbrain/cloudfiler/app/conf"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -15,16 +17,18 @@ import (
 var ctxType = reflect.TypeOf(&Context{})
 
 type muxer struct {
-	handlers    map[string]reflect.Value
-	actions     map[string]reflect.Value
-	actionPaths map[reflect.Value]string
+	handlers     map[string]reflect.Value
+	actions      map[string]reflect.Value
+	actionPaths  map[reflect.Value]string
+	sessionStore *sessions.CookieStore
 }
 
 func NewMuxer() muxer {
 	return muxer{
-		handlers:    make(map[string]reflect.Value),
-		actions:     make(map[string]reflect.Value),
-		actionPaths: make(map[reflect.Value]string),
+		handlers:     make(map[string]reflect.Value),
+		actions:      make(map[string]reflect.Value),
+		actionPaths:  make(map[reflect.Value]string),
+		sessionStore: sessions.NewCookieStore([]byte(Config.CookieStoreSecret)),
 	}
 }
 
@@ -98,11 +102,16 @@ func (m muxer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			bw.Flush()
 		}
 	}()
-
 	path := r.URL.Path
 	action, ok := m.Action(path)
 
 	if ok {
+		//is authenticated?
+		session, _ := m.sessionStore.Get(r, "some-session")
+		if _, authenticated := session.Values["auth"]; !authenticated {
+			panic("asd")
+		}
+
 		//get view for action
 		view := m.getViewForAction(action)
 
