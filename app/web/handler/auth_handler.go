@@ -11,11 +11,11 @@ type AuthData struct {
 }
 
 type AuthHandler struct {
-	authenticator *Authenticator
+	authenticator Authenticator
 	data          AuthData
 }
 
-func NewAuthHandler(authenticator *Authenticator) AuthHandler {
+func NewAuthHandler(authenticator Authenticator) AuthHandler {
 	return AuthHandler{
 		authenticator: authenticator,
 	}

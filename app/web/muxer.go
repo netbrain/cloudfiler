@@ -16,13 +16,13 @@ import (
 var ctxType = reflect.TypeOf(&Context{})
 
 type Muxer struct {
-	authenticator *Authenticator
+	authenticator Authenticator
 	handlers      map[string]reflect.Value
 	actions       map[string]reflect.Value
 	actionPaths   map[reflect.Value]string
 }
 
-func NewMuxer(authenticator *Authenticator) Muxer {
+func NewMuxer(authenticator Authenticator) Muxer {
 	return Muxer{
 		authenticator: authenticator,
 		handlers:      make(map[string]reflect.Value),

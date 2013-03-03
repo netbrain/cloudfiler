@@ -17,10 +17,14 @@ type Authenticator struct {
 	userRepository UserRepository
 }
 
-func NewAuthenticator(userRepository UserRepository) *Authenticator {
-	a := &Authenticator{
+func NewAuthenticator(userRepository UserRepository) Authenticator {
+	a := Authenticator{
 		userRepository: userRepository,
 		sessionStore:   sessions.NewCookieStore(Config.CookieStoreAuthenticationKey, Config.CookieStoreEncryptionKey),
+	}
+	a.sessionStore.Options = &sessions.Options{
+		MaxAge: 30 * 60,
+		Path:   "/",
 	}
 	return a
 }
@@ -43,10 +47,7 @@ func (a *Authenticator) Authorize(email, password string, w http.ResponseWriter,
 	user, _ := a.userRepository.FindByEmail(email)
 	if user != nil && user.PasswordEquals(password) {
 		session, _ := a.getSession(r)
-		session.Options = &sessions.Options{
-			MaxAge: 30 * 60,
-			Path:   "/",
-		}
+
 		session.Values[AUTH_ID] = user.ID
 		if err := session.Save(r, w); err != nil {
 			panic(err)
@@ -58,7 +59,7 @@ func (a *Authenticator) Authorize(email, password string, w http.ResponseWriter,
 
 func (a *Authenticator) Unauthorize(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.getSession(r)
-	session.Options = &sessions.Options{MaxAge: -1}
+	session.Options.MaxAge = -1
 	delete(session.Values, AUTH_ID)
 	if err := session.Save(r, w); err != nil {
 		panic(err)
