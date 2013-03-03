@@ -1,6 +1,8 @@
 package web
 
 import (
+	"github.com/netbrain/cloudfiler/app/repository/mem"
+	"github.com/netbrain/cloudfiler/app/web/auth"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -18,17 +20,17 @@ func (t TestHandler) Action(ctx *Context) interface{} {
 	return "Hello World"
 }
 
-var m = NewMuxer()
+var m Muxer
 var action = TestHandler.Action
 var path = "/some/path"
 
-func cleanup() {
+func initMuxerTest() {
 	//reset muxer
-	m = NewMuxer()
+	m = NewMuxer(auth.NewAuthenticator(mem.NewUserRepository()))
 }
 
 func TestAddHandler(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	m.AddHandler(TestHandler{})
 
 	if len(m.handlers) != 1 {
@@ -42,7 +44,7 @@ func TestAddHandler(t *testing.T) {
 }
 
 func TestGetHandlerByCaseInsensitiveName(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	m.AddHandler(TestHandler{})
 
 	if _, ok := m.Handler("tEstHanDler"); !ok {
@@ -52,7 +54,7 @@ func TestGetHandlerByCaseInsensitiveName(t *testing.T) {
 }
 
 func TestAddAnonymousStructHandler(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	myHandler := struct{}{}
 	defer func() {
 		if r := recover(); r == nil {
@@ -64,7 +66,7 @@ func TestAddAnonymousStructHandler(t *testing.T) {
 }
 
 func TestAddAction(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	m.AddAction(path, action)
 
 	if len(m.actions) != 1 {
@@ -77,7 +79,7 @@ func TestAddAction(t *testing.T) {
 }
 
 func TestHandleActionReturnsData(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	m.AddHandler(TestHandler{})
 	m.AddAction(path, action)
 
@@ -88,7 +90,7 @@ func TestHandleActionReturnsData(t *testing.T) {
 }
 
 func TestHandleActionContextIsInitialized(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 
 	closureCalled := false
 
@@ -114,7 +116,7 @@ func TestHandleActionContextIsInitialized(t *testing.T) {
 }
 
 func TestHandleActionWhereNoActionExist(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	m.AddAction(path, action)
 	m.Action("/some/unhandled/path")
 	invalidAction, _ := m.Action("/some/unhandled/path")
@@ -124,7 +126,7 @@ func TestHandleActionWhereNoActionExist(t *testing.T) {
 }
 
 func TestGetActionName(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	name := m.actionName(reflect.ValueOf(TestHandler.Action))
 	if name != "action" {
 		t.Fatalf("Expected 'action' but got: %s", name)
@@ -132,7 +134,7 @@ func TestGetActionName(t *testing.T) {
 }
 
 func TestGetHandlerName(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	name := m.handlerName(reflect.ValueOf(TestHandler.Action))
 	if name != "test" {
 		t.Fatalf("Expected 'test' but got: %s", name)
@@ -140,7 +142,7 @@ func TestGetHandlerName(t *testing.T) {
 }
 
 func TestServeHTTP(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	m.AddHandler(TestHandler{})
 	m.AddAction("/", TestHandler.Action)
 	go http.ListenAndServe(":8081", m)
@@ -151,7 +153,7 @@ func TestServeHTTP(t *testing.T) {
 }
 
 func TestActionPath(t *testing.T) {
-	defer cleanup()
+	initMuxerTest()
 	m.AddHandler(TestHandler{})
 	m.AddAction(path, action)
 	p, ok := m.ActionPath(action)
