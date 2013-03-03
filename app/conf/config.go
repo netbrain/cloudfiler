@@ -2,7 +2,9 @@ package conf
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/json"
+	"io"
 	"log"
 	"os"
 	"reflect"
@@ -11,10 +13,11 @@ import (
 var Config *config
 
 type config struct {
-	ConfigFilePath    string `json:"-"`
-	ApplicationHome   string `json:"applicationHome"`
-	ServerAddr        string `json:"serverAddr"`
-	CookieStoreSecret string `json:"cookieStoreSecret"`
+	ConfigFilePath               string `json:"-"`
+	ApplicationHome              string `json:"applicationHome"`
+	ServerAddr                   string `json:"serverAddr"`
+	CookieStoreAuthenticationKey []byte `json:"cookieStoreAuthenticationKey"`
+	CookieStoreEncryptionKey     []byte `json:"cookieStoreEncryptionKey"`
 }
 
 func init() {
@@ -24,10 +27,11 @@ func init() {
 
 	wd, _ := os.Getwd()
 	Config = &config{
-		ConfigFilePath:    configFile,
-		ApplicationHome:   wd,
-		ServerAddr:        "127.0.0.1:8080",
-		CookieStoreSecret: "my-secret-cookie-pwd",
+		ConfigFilePath:               configFile,
+		ApplicationHome:              wd,
+		ServerAddr:                   "127.0.0.1:8080",
+		CookieStoreAuthenticationKey: generateRandomKey(32),
+		CookieStoreEncryptionKey:     generateRandomKey(32),
 	}
 
 	os.MkdirAll(configHome, 0755)
@@ -69,6 +73,14 @@ func printConfigToStdout() {
 	for x := 0; x < cType.NumField(); x++ {
 		cFieldType := cType.Field(x)
 		cFieldVal := cVal.Field(x)
-		log.Printf("%s: %s", cFieldType.Name, cFieldVal.String())
+		log.Printf("%s: %v", cFieldType.Name, cFieldVal.Interface())
 	}
+}
+
+func generateRandomKey(strength int) []byte {
+	k := make([]byte, strength)
+	if _, err := io.ReadFull(rand.Reader, k); err != nil {
+		return nil
+	}
+	return k
 }

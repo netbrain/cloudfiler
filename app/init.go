@@ -4,11 +4,12 @@ import (
 	"github.com/netbrain/cloudfiler/app/controller"
 	"github.com/netbrain/cloudfiler/app/repository/mem"
 	"github.com/netbrain/cloudfiler/app/web"
-	"github.com/netbrain/cloudfiler/app/web/handlers"
+	"github.com/netbrain/cloudfiler/app/web/auth"
+	"github.com/netbrain/cloudfiler/app/web/handler"
 	"log"
 )
 
-var Muxer = web.NewMuxer()
+var Muxer web.Muxer
 
 func init() {
 	initApplication()
@@ -19,20 +20,28 @@ func initApplication() {
 	log.Println("Initializing application dependencies...")
 	userRepo := mem.NewUserRepository()
 	roleRepo := mem.NewRoleRepository()
+	authenticator := auth.NewAuthenticator(userRepo)
 
 	userController := controller.NewUserController(userRepo)
 	roleController := controller.NewRoleController(roleRepo)
 
 	userHandler := handler.NewUserHandler(userController)
 	roleHandler := handler.NewRoleHandler(roleController)
+	authHandler := handler.NewAuthHandler(authenticator)
 
 	log.Println("Adding web handlers...")
+	Muxer = web.NewMuxer(authenticator)
+	Muxer.AddHandler(authHandler)
 	Muxer.AddHandler(userHandler)
 	Muxer.AddHandler(roleHandler)
 }
 
 func initRoutes() {
 	log.Println("Adding routing table...")
+
+	//Auth
+	Muxer.AddAction("/auth/login", handler.AuthHandler.Login)
+	Muxer.AddAction("/auth/logout", handler.AuthHandler.Logout)
 
 	//User
 	Muxer.AddAction("/user/list", handler.UserHandler.List)

@@ -4,60 +4,27 @@ import (
 	. "github.com/netbrain/cloudfiler/app/controller"
 	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/repository/mem"
-	"github.com/netbrain/cloudfiler/app/web"
+	. "github.com/netbrain/cloudfiler/app/web"
+	. "github.com/netbrain/cloudfiler/app/web/testing"
 	"net/http"
-	"net/http/httptest"
 	"strconv"
 	"testing"
 )
 
-var repo UserRepositoryMem
-var controller UserController
-var handler UserHandler
+var userRepo UserRepositoryMem
+var userController UserController
+var userHandler UserHandler
 
 func initUserHandlerTest() {
-	repo = NewUserRepository()
-	controller = NewUserController(repo)
-	handler = NewUserHandler(controller)
-}
-
-func CreateReqContext(method, path string, parameters map[string][]string) (*web.Context, *httptest.ResponseRecorder) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(method, path, nil)
-	switch method {
-	case "GET":
-		for key, slice := range parameters {
-			for _, val := range slice {
-				r.URL.Query().Add(key, val)
-			}
-		}
-	case "POST":
-		r.Form = parameters
-	default:
-		panic("unknown method")
-	}
-
-	ctx := web.NewContext(w, r)
-	return ctx, w
-}
-
-func TestCreateReqContext(t *testing.T) {
-	initUserHandlerTest()
-	ctx, _ := CreateReqContext("POST", "/test/path", nil)
-	if ctx.Method() != "POST" {
-		t.Fatal("Expected POST as method")
-	}
-
-	p := ctx.Request.URL.Path
-	if p != "/test/path" {
-		t.Fatal("Expected /test/path")
-	}
+	userRepo = NewUserRepository()
+	userController = NewUserController(userRepo)
+	userHandler = NewUserHandler(userController)
 }
 
 func TestGetList(t *testing.T) {
 	initUserHandlerTest()
 	ctx, _ := CreateReqContext("GET", "/user/list", nil)
-	result := handler.List(ctx)
+	result := userHandler.List(ctx)
 	if result == nil {
 		t.Fatalf("response returned %v", result)
 	}
@@ -66,7 +33,7 @@ func TestGetList(t *testing.T) {
 func TestGetCreatePage(t *testing.T) {
 	initUserHandlerTest()
 	ctx, _ := CreateReqContext("GET", "/user/create", nil)
-	result := handler.Create(ctx)
+	result := userHandler.Create(ctx)
 	if result != nil {
 		t.Fatal("Expected nil")
 	}
@@ -79,7 +46,7 @@ func TestCreateUser(t *testing.T) {
 		"password":       []string{"testpassword"},
 		"password-again": []string{"testpassword"},
 	})
-	handler.Create(ctx)
+	userHandler.Create(ctx)
 
 	if ctx.HasValidationErrors() {
 		t.Log(ctx.ValidationErrors)
@@ -90,7 +57,7 @@ func TestCreateUser(t *testing.T) {
 		t.Fatal("Expected redirection")
 	}
 
-	result, _ := repo.All()
+	result, _ := userRepo.All()
 	if len(result) != 1 {
 		t.Fatal("Expected user created")
 	}
@@ -100,7 +67,7 @@ func TestCreateUserWithNoParameters(t *testing.T) {
 	initUserHandlerTest()
 	ctx, _ := CreateReqContext("POST", "/user/create", nil)
 
-	handler.Create(ctx)
+	userHandler.Create(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -115,7 +82,7 @@ func TestCreateUserWithInvalidEmail(t *testing.T) {
 		"password-again": []string{"testpassword"},
 	})
 
-	handler.Create(ctx)
+	userHandler.Create(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -134,7 +101,7 @@ func TestCreateUserWithSmallPasswordLength(t *testing.T) {
 		"password-again": []string{"pass"},
 	})
 
-	handler.Create(ctx)
+	userHandler.Create(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -153,7 +120,7 @@ func TestCreateUserWithLargePasswordLength(t *testing.T) {
 		"password-again": []string{"my-very-very-very-long-password"},
 	})
 
-	handler.Create(ctx)
+	userHandler.Create(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -172,7 +139,7 @@ func TestCreateUserWithMismatchingPasswordEntries(t *testing.T) {
 		"password-again": []string{"mymismatchingpass"},
 	})
 
-	handler.Create(ctx)
+	userHandler.Create(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -185,7 +152,7 @@ func TestCreateUserWithMismatchingPasswordEntries(t *testing.T) {
 
 func TestCreateUserWhereEmailAlreadyExist(t *testing.T) {
 	initUserHandlerTest()
-	controller.Create("test@test.test", "mypassword")
+	userController.Create("test@test.test", "mypassword")
 
 	ctx, _ := CreateReqContext("POST", "/user/create", map[string][]string{
 		"email":          []string{"test@test.test"},
@@ -193,7 +160,7 @@ func TestCreateUserWhereEmailAlreadyExist(t *testing.T) {
 		"password-again": []string{"myvalidpass"},
 	})
 
-	result := handler.Create(ctx)
+	result := userHandler.Create(ctx)
 
 	switch result.(type) {
 	case error:
@@ -210,9 +177,9 @@ func TestRetrieveNonExistingUser(t *testing.T) {
 		"id": []string{"123"},
 	})
 
-	result := handler.Retrieve(ctx)
+	result := userHandler.Retrieve(ctx)
 
-	if err, ok := result.(*web.AppError); ok {
+	if err, ok := result.(*AppError); ok {
 		if err.Status() != http.StatusNotFound {
 			t.Fatal("Expected 404")
 		}
@@ -224,13 +191,13 @@ func TestRetrieveNonExistingUser(t *testing.T) {
 func TestRetrieveExistingUser(t *testing.T) {
 	initUserHandlerTest()
 
-	controller.Create("test@test.test", "password")
-	user, _ := repo.FindByEmail("test@test.test")
+	userController.Create("test@test.test", "password")
+	user, _ := userRepo.FindByEmail("test@test.test")
 	id := strconv.Itoa(user.ID)
 
 	ctx, _ := CreateReqContext("GET", "/user/retrieve?id="+id, nil)
 
-	result := handler.Retrieve(ctx)
+	result := userHandler.Retrieve(ctx)
 
 	if !user.Equals(result) {
 		t.Fatal("Expected equality")
@@ -239,8 +206,8 @@ func TestRetrieveExistingUser(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	initUserHandlerTest()
-	controller.Create("test@test.test", "password")
-	user, _ := repo.FindByEmail("test@test.test")
+	userController.Create("test@test.test", "password")
+	user, _ := userRepo.FindByEmail("test@test.test")
 	id := strconv.Itoa(user.ID)
 
 	ctx, _ := CreateReqContext("POST", "/user/update", map[string][]string{
@@ -249,7 +216,7 @@ func TestUpdateUser(t *testing.T) {
 		"password":       []string{"testpassword"},
 		"password-again": []string{"testpassword"},
 	})
-	handler.Update(ctx)
+	userHandler.Update(ctx)
 
 	if ctx.HasValidationErrors() {
 		t.Log(ctx.ValidationErrors)
@@ -260,7 +227,7 @@ func TestUpdateUser(t *testing.T) {
 		t.Fatal("Expected redirection")
 	}
 
-	user, _ = repo.FindByEmail("test@test.test")
+	user, _ = userRepo.FindByEmail("test@test.test")
 	if !user.PasswordEquals("testpassword") {
 		t.Fatal("Expected a updated password")
 	}
@@ -268,12 +235,12 @@ func TestUpdateUser(t *testing.T) {
 
 func TestUpdateUserWithNoParameters(t *testing.T) {
 	initUserHandlerTest()
-	controller.Create("test@test.test", "password")
-	user, _ := repo.FindByEmail("test@test.test")
+	userController.Create("test@test.test", "password")
+	user, _ := userRepo.FindByEmail("test@test.test")
 	id := strconv.Itoa(user.ID)
 	ctx, _ := CreateReqContext("POST", "/user/update?id="+id, nil)
 
-	handler.Update(ctx)
+	userHandler.Update(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -282,8 +249,8 @@ func TestUpdateUserWithNoParameters(t *testing.T) {
 
 func TestUpdateUserWithInvalidEmail(t *testing.T) {
 	initUserHandlerTest()
-	controller.Create("test@test.test", "password")
-	user, _ := repo.FindByEmail("test@test.test")
+	userController.Create("test@test.test", "password")
+	user, _ := userRepo.FindByEmail("test@test.test")
 	id := strconv.Itoa(user.ID)
 	ctx, _ := CreateReqContext("POST", "/user/update", map[string][]string{
 		"id":             []string{id},
@@ -292,7 +259,7 @@ func TestUpdateUserWithInvalidEmail(t *testing.T) {
 		"password-again": []string{"testpassword"},
 	})
 
-	handler.Update(ctx)
+	userHandler.Update(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -305,8 +272,8 @@ func TestUpdateUserWithInvalidEmail(t *testing.T) {
 
 func TestUpdateUserWithSmallPasswordLength(t *testing.T) {
 	initUserHandlerTest()
-	controller.Create("test@test.test", "password")
-	user, _ := repo.FindByEmail("test@test.test")
+	userController.Create("test@test.test", "password")
+	user, _ := userRepo.FindByEmail("test@test.test")
 	id := strconv.Itoa(user.ID)
 	ctx, _ := CreateReqContext("POST", "/user/update?id="+id, map[string][]string{
 		"email":          []string{"test@test.test"},
@@ -314,7 +281,7 @@ func TestUpdateUserWithSmallPasswordLength(t *testing.T) {
 		"password-again": []string{"pass"},
 	})
 
-	handler.Update(ctx)
+	userHandler.Update(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -327,8 +294,8 @@ func TestUpdateUserWithSmallPasswordLength(t *testing.T) {
 
 func TestUpdateUserWithLargePasswordLength(t *testing.T) {
 	initUserHandlerTest()
-	controller.Create("test@test.test", "password")
-	user, _ := repo.FindByEmail("test@test.test")
+	userController.Create("test@test.test", "password")
+	user, _ := userRepo.FindByEmail("test@test.test")
 	id := strconv.Itoa(user.ID)
 	ctx, _ := CreateReqContext("POST", "/user/update?id="+id, map[string][]string{
 		"email":          []string{"test@test.test"},
@@ -336,7 +303,7 @@ func TestUpdateUserWithLargePasswordLength(t *testing.T) {
 		"password-again": []string{"my-very-very-very-long-password"},
 	})
 
-	handler.Update(ctx)
+	userHandler.Update(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -349,8 +316,8 @@ func TestUpdateUserWithLargePasswordLength(t *testing.T) {
 
 func TestUpdateUserWithMismatchingPasswordEntries(t *testing.T) {
 	initUserHandlerTest()
-	controller.Create("test@test.test", "password")
-	user, _ := repo.FindByEmail("test@test.test")
+	userController.Create("test@test.test", "password")
+	user, _ := userRepo.FindByEmail("test@test.test")
 	id := strconv.Itoa(user.ID)
 	ctx, _ := CreateReqContext("POST", "/user/update?id="+id, map[string][]string{
 		"email":          []string{"test@test.test"},
@@ -358,7 +325,7 @@ func TestUpdateUserWithMismatchingPasswordEntries(t *testing.T) {
 		"password-again": []string{"mymismatchingpass"},
 	})
 
-	handler.Update(ctx)
+	userHandler.Update(ctx)
 
 	if !ctx.HasValidationErrors() {
 		t.Fatal("Expected validation errors")
@@ -373,7 +340,7 @@ func TestDeleteNonExistingUser(t *testing.T) {
 	initUserHandlerTest()
 	ctx, _ := CreateReqContext("GET", "/user/delete?id=123", nil)
 
-	result := handler.Delete(ctx)
+	result := userHandler.Delete(ctx)
 
 	if result != nil {
 		t.Fatal("expected nil")
@@ -387,12 +354,12 @@ func TestDeleteNonExistingUser(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	initUserHandlerTest()
-	controller.Create("test@test.test", "password")
-	user, _ := repo.FindByEmail("test@test.test")
+	userController.Create("test@test.test", "password")
+	user, _ := userRepo.FindByEmail("test@test.test")
 	id := strconv.Itoa(user.ID)
 	ctx, _ := CreateReqContext("GET", "/user/delete?id="+id, nil)
 
-	result := handler.Delete(ctx)
+	result := userHandler.Delete(ctx)
 
 	if result != nil {
 		t.Fatal("expected nil")

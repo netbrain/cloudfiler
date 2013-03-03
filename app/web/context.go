@@ -9,7 +9,7 @@ type Context struct {
 	ValidationErrors map[string][]error
 	Data             interface{}
 	Request          *http.Request
-	writer           http.ResponseWriter
+	Writer           http.ResponseWriter
 	redirect         interface{}
 	formValidator    *fvgo.FormValidator
 }
@@ -17,7 +17,7 @@ type Context struct {
 func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 	ctx := &Context{
 		Request:       r,
-		writer:        w,
+		Writer:        w,
 		formValidator: FormValidator,
 	}
 	_, ctx.ValidationErrors = ctx.formValidator.ValidateRequestData(ctx.Request)
@@ -25,19 +25,19 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 }
 
 func (ctx *Context) SetHeader(key, value string) {
-	ctx.writer.Header().Set(key, value)
+	ctx.Writer.Header().Set(key, value)
 }
 
 func (ctx *Context) AddHeader(key, value string) {
-	ctx.writer.Header().Add(key, value)
+	ctx.Writer.Header().Add(key, value)
 }
 
 func (ctx *Context) DelHeader(key string) {
-	ctx.writer.Header().Del(key)
+	ctx.Writer.Header().Del(key)
 }
 
 func (ctx *Context) GetHeader(key string) string {
-	return ctx.writer.Header().Get(key)
+	return ctx.Writer.Header().Get(key)
 }
 
 func (ctx *Context) Method() string {

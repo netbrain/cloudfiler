@@ -27,9 +27,9 @@ Loads all template files as templates and caches them, as well as parsing
 any form definitions and creating validation rules from them.
 */
 func loadTemplates() {
-	log.Println("Parsing templates...")
+	log.Println("Parsing templates in: " + ViewDir())
 	filepath.Walk(ViewDir(), func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
+		if info != nil && !info.IsDir() {
 			if strings.HasSuffix(info.Name(), ".html") {
 				log.Println(path)
 
