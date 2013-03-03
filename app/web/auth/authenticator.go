@@ -15,12 +15,16 @@ const (
 type Authenticator struct {
 	sessionStore   *sessions.CookieStore
 	userRepository UserRepository
+	loginUrl       string
+	entryUrl       string
 }
 
-func NewAuthenticator(userRepository UserRepository) Authenticator {
+func NewAuthenticator(userRepository UserRepository, loginUrl, entryUrl string) Authenticator {
 	a := Authenticator{
 		userRepository: userRepository,
 		sessionStore:   sessions.NewCookieStore(Config.CookieStoreAuthenticationKey, Config.CookieStoreEncryptionKey),
+		loginUrl:       loginUrl,
+		entryUrl:       entryUrl,
 	}
 	a.sessionStore.Options = &sessions.Options{
 		MaxAge: 30 * 60,
@@ -74,4 +78,17 @@ func (a *Authenticator) AuthorizedUserID(r *http.Request) int {
 		}
 	}
 	return 0
+}
+
+func (a Authenticator) Handle(w http.ResponseWriter, r *http.Request) bool {
+	if r.URL.Path == a.loginUrl {
+		return true
+	}
+
+	if a.IsAuthorized(r) {
+		return true
+	}
+
+	http.Redirect(w, r, a.loginUrl, http.StatusTemporaryRedirect)
+	return false
 }

@@ -3,31 +3,27 @@ package web
 import (
 	"bufio"
 	"fmt"
-	. "github.com/netbrain/cloudfiler/app/web/auth"
 	"log"
 	"net/http"
 	"path/filepath"
 	"reflect"
 	"runtime"
-	"runtime/debug"
 	. "strings"
 )
 
 var ctxType = reflect.TypeOf(&Context{})
 
 type Muxer struct {
-	authenticator Authenticator
-	handlers      map[string]reflect.Value
-	actions       map[string]reflect.Value
-	actionPaths   map[reflect.Value]string
+	handlers    map[string]reflect.Value
+	actions     map[string]reflect.Value
+	actionPaths map[reflect.Value]string
 }
 
-func NewMuxer(authenticator Authenticator) Muxer {
+func NewMuxer() Muxer {
 	return Muxer{
-		authenticator: authenticator,
-		handlers:      make(map[string]reflect.Value),
-		actions:       make(map[string]reflect.Value),
-		actionPaths:   make(map[reflect.Value]string),
+		handlers:    make(map[string]reflect.Value),
+		actions:     make(map[string]reflect.Value),
+		actionPaths: make(map[reflect.Value]string),
 	}
 }
 
@@ -90,49 +86,34 @@ func validateAction(action interface{}) {
 	}
 }
 
-func (m Muxer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (m Muxer) Handle(w http.ResponseWriter, r *http.Request) bool {
 	bw := bufio.NewWriter(w)
-	//init failure handling
-	defer func() {
-		if r := recover(); r != nil {
-			http.Error(w, fmt.Sprintf("PANIC: %s - %s", r, debug.Stack()), http.StatusInternalServerError)
-			log.Printf("PANIC: %s - %s", r, debug.Stack())
-		} else {
-			bw.Flush()
-		}
-	}()
+	defer bw.Flush()
 	path := r.URL.Path
 	action, ok := m.Action(path)
 
 	if ok {
-		//authenticate request
-		if m.authenticator.IsAuthorized(r) || path == "/auth/login" {
+		//get view for action
+		view := m.getViewForAction(action)
 
-			//get view for action
-			view := m.getViewForAction(action)
+		ctx := NewContext(w, r)
 
-			ctx := NewContext(w, r)
+		//validate any input form
+		if !ctx.HasValidationErrors() {
+			//handle action
+			ctx.Data = m.handleAction(action, ctx)
+		}
 
-			//validate any input form
-			if !ctx.HasValidationErrors() {
-				//handle action
-				ctx.Data = m.handleAction(action, ctx)
+		switch d := ctx.Data.(type) {
+		case *AppError:
+			m.handleAppError(d, w, bw)
+		default:
+			if ctx.IsRedirected() {
+				m.handleRedirect(ctx)
+			} else {
+				//handle view
+				RenderView(view, bw, ctx)
 			}
-
-			switch d := ctx.Data.(type) {
-			case *AppError:
-				m.handleAppError(d, w, bw)
-			default:
-				if ctx.IsRedirected() {
-					m.handleRedirect(ctx)
-				} else {
-					//handle view
-					RenderView(view, bw, ctx)
-				}
-			}
-		} else {
-			//redirect to login page
-			http.Redirect(w, r, "/auth/login", http.StatusTemporaryRedirect)
 		}
 	} else {
 		log.Printf("No handler for path: %s returning status: %v", path, http.StatusNotFound)
@@ -140,6 +121,7 @@ func (m Muxer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		RenderView(view, w, nil)
 	}
+	return true
 }
 
 func (m Muxer) handleAction(action reflect.Value, ctx *Context) interface{} {

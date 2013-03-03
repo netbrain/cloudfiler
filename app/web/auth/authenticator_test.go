@@ -17,7 +17,7 @@ var userRepo UserRepositoryMem
 
 func InitAuthenticatorTest() {
 	userRepo = NewUserRepository()
-	authenticator = NewAuthenticator(userRepo)
+	authenticator = NewAuthenticator(userRepo, "", "")
 }
 
 func TestAuthorize(t *testing.T) {

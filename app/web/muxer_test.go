@@ -1,8 +1,6 @@
 package web
 
 import (
-	"github.com/netbrain/cloudfiler/app/repository/mem"
-	"github.com/netbrain/cloudfiler/app/web/auth"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -26,7 +24,7 @@ var path = "/some/path"
 
 func initMuxerTest() {
 	//reset muxer
-	m = NewMuxer(auth.NewAuthenticator(mem.NewUserRepository()))
+	m = NewMuxer()
 }
 
 func TestAddHandler(t *testing.T) {
@@ -112,7 +110,7 @@ func TestHandleActionContextIsInitialized(t *testing.T) {
 
 	r, _ := http.NewRequest("GET", path, nil)
 	w := httptest.NewRecorder()
-	m.ServeHTTP(w, r)
+	m.Handle(w, r)
 }
 
 func TestHandleActionWhereNoActionExist(t *testing.T) {
@@ -139,17 +137,6 @@ func TestGetHandlerName(t *testing.T) {
 	if name != "test" {
 		t.Fatalf("Expected 'test' but got: %s", name)
 	}
-}
-
-func TestServeHTTP(t *testing.T) {
-	initMuxerTest()
-	m.AddHandler(TestHandler{})
-	m.AddAction("/", TestHandler.Action)
-	go http.ListenAndServe(":8081", m)
-	if _, err := http.Get("http://localhost:8081/"); err != nil {
-		t.Fatalf("Returned in error: %v", err)
-	}
-
 }
 
 func TestActionPath(t *testing.T) {

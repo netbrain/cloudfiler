@@ -10,7 +10,7 @@ import (
 func main() {
 	serverAddr := conf.Config.ServerAddr
 	log.Printf("Starting server, listening on: %s", serverAddr)
-	if err := http.ListenAndServe(serverAddr, app.Muxer); err != nil {
+	if err := http.ListenAndServe(serverAddr, app.WebHandler); err != nil {
 		panic(err)
 	}
 }
