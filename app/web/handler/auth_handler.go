@@ -26,10 +26,14 @@ func redirectToLandingPage(ctx *Context) {
 }
 
 func (h AuthHandler) Login(ctx *Context) interface{} {
-	if h.authenticator.IsAuthorized(ctx.Request) {
-		redirectToLandingPage(ctx)
-		return nil
-	}
+	ctx.SetHeader(
+		"Cache-Control",
+		"no-cache, max-age=0, must-revalidate, no-store",
+	)
+	// if h.authenticator.IsAuthorized(ctx.Request) {
+	// 	redirectToLandingPage(ctx)
+	// 	return nil
+	// }
 
 	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
 		data := &h.data
@@ -44,6 +48,10 @@ func (h AuthHandler) Login(ctx *Context) interface{} {
 }
 
 func (h AuthHandler) Logout(ctx *Context) interface{} {
+	ctx.SetHeader(
+		"Cache-Control",
+		"no-cache, max-age=0, must-revalidate, no-store",
+	)
 	h.authenticator.Unauthorize(ctx.Writer, ctx.Request)
 	redirectToLandingPage(ctx)
 	return nil

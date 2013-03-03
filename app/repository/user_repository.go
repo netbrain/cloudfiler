@@ -10,4 +10,5 @@ type UserRepository interface {
 	All() ([]User, error)
 	FindById(id int) (*User, error)
 	FindByEmail(email string) (*User, error)
+	Count() (int, error)
 }

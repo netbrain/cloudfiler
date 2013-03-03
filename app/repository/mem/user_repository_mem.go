@@ -50,3 +50,7 @@ func (r UserRepositoryMem) FindByEmail(email string) (*User, error) {
 	}
 	return nil, nil
 }
+
+func (r UserRepositoryMem) Count() (int, error) {
+	return len(r.users), nil
+}

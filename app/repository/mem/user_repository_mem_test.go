@@ -110,3 +110,15 @@ func TestUserFindByEmail(t *testing.T) {
 		t.Fatal("User doesn't equal stored user")
 	}
 }
+
+func TestUserCount(t *testing.T) {
+	initUserTest()
+
+	user := getUser()
+	userRepo.Store(user)
+
+	count, _ := userRepo.Count()
+	if count != 1 {
+		t.Fatal("Wrong count")
+	}
+}

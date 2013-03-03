@@ -10,7 +10,8 @@ import (
 	"log"
 )
 
-var muxer web.Muxer
+var muxer = web.NewMuxer()
+var authenticator auth.Authenticator
 var WebHandler = new(interceptor.InterceptorChain)
 
 func init() {
@@ -20,21 +21,39 @@ func init() {
 
 func initApplication() {
 	log.Println("Initializing application dependencies...")
+
+	//init repositories
 	userRepo := mem.NewUserRepository()
 	roleRepo := mem.NewRoleRepository()
-	authenticator := auth.NewAuthenticator(userRepo, "/auth/login", "/")
-	WebHandler.AddInterceptor(authenticator)
 
+	//init interceptor chain
+	authenticator = auth.NewAuthenticator(userRepo, roleRepo, "/auth/login", "/")
+	WebHandler.AddInterceptor(authenticator)
+	WebHandler.AddInterceptor(muxer)
+
+	//init controllers
 	userController := controller.NewUserController(userRepo)
 	roleController := controller.NewRoleController(roleRepo)
 
+	//create initial data if necessary
+	adminRole, err := roleController.RoleByName("Admin")
+	if err != nil {
+		panic(err)
+	}
+
+	if adminRole == nil {
+		log.Println("Creating Admin role")
+		if err := roleController.Create("Admin"); err != nil {
+			panic(err)
+		}
+	}
+
+	//init handlers
 	userHandler := handler.NewUserHandler(userController)
 	roleHandler := handler.NewRoleHandler(roleController)
 	authHandler := handler.NewAuthHandler(authenticator)
 
-	muxer = web.NewMuxer(authenticator)
-	WebHandler.AddInterceptor(muxer)
-
+	//wire it all up
 	log.Println("Adding web handlers...")
 	muxer.AddHandler(authHandler)
 	muxer.AddHandler(userHandler)
@@ -45,21 +64,30 @@ func initRoutes() {
 	log.Println("Adding routing table...")
 
 	//Auth
-	muxer.AddAction("/auth/login", handler.AuthHandler.Login)
-	muxer.AddAction("/auth/logout", handler.AuthHandler.Logout)
+	addRoute(handler.AuthHandler.Login, "/auth/login")
+	addRoute(handler.AuthHandler.Logout, "/auth/logout")
 
 	//User
-	muxer.AddAction("/user/list", handler.UserHandler.List)
-	muxer.AddAction("/user/create", handler.UserHandler.Create)
-	muxer.AddAction("/user/retrieve", handler.UserHandler.Retrieve)
-	muxer.AddAction("/user/update", handler.UserHandler.Update)
-	muxer.AddAction("/user/delete", handler.UserHandler.Delete)
+	addRoute(handler.UserHandler.List, "/user/list", "Admin")
+	addRoute(handler.UserHandler.Create, "/user/create", "Admin")
+	addRoute(handler.UserHandler.Retrieve, "/user/retrieve", "Admin")
+	addRoute(handler.UserHandler.Update, "/user/update", "Admin")
+	addRoute(handler.UserHandler.Delete, "/user/delete", "Admin")
 
 	//Role
-	muxer.AddAction("/role/list", handler.RoleHandler.List)
-	muxer.AddAction("/role/create", handler.RoleHandler.Create)
-	muxer.AddAction("/role/retrieve", handler.RoleHandler.Retrieve)
-	muxer.AddAction("/role/update", handler.RoleHandler.Update)
-	muxer.AddAction("/role/delete", handler.RoleHandler.Delete)
+	addRoute(handler.RoleHandler.List, "/role/list", "Admin")
+	addRoute(handler.RoleHandler.Create, "/role/create", "Admin")
+	addRoute(handler.RoleHandler.Retrieve, "/role/retrieve", "Admin")
+	addRoute(handler.RoleHandler.Update, "/role/update", "Admin")
+	addRoute(handler.RoleHandler.Delete, "/role/delete", "Admin")
 
+}
+
+func addRoute(handler interface{}, path string, requiredRoles ...string) {
+	log.Printf("Adding route '%s' with required roles: %v", path, requiredRoles)
+	muxer.AddAction(path, handler)
+
+	if len(requiredRoles) > 0 {
+		authenticator.SetRequiredPrivileges(path, requiredRoles...)
+	}
 }
