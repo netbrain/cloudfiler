@@ -5,7 +5,6 @@ import (
 	. "github.com/netbrain/cloudfiler/app/conf"
 	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/repository"
-	"log"
 	"net/http"
 )
 
