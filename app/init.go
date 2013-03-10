@@ -36,21 +36,28 @@ func initApplication() {
 	roleController := controller.NewRoleController(roleRepo, userRepo)
 
 	//init handlers
+	indexHandler := handler.NewIndexHandler(authenticator, userController)
 	initHandler := handler.NewInitHandler(userController, roleController)
 	userHandler := handler.NewUserHandler(userController)
 	roleHandler := handler.NewRoleHandler(roleController, userController)
 	authHandler := handler.NewAuthHandler(authenticator)
+	fileHandler := handler.NewFileHandler()
 
 	//wire it all up
 	log.Println("Adding web handlers...")
+	muxer.AddHandler(indexHandler)
 	muxer.AddHandler(initHandler)
 	muxer.AddHandler(authHandler)
 	muxer.AddHandler(userHandler)
 	muxer.AddHandler(roleHandler)
+	muxer.AddHandler(fileHandler)
 }
 
 func initRoutes() {
 	log.Println("Adding routing table...")
+
+	//Index
+	addRoute(handler.IndexHandler.Index, "/")
 
 	//Init
 	addRoute(handler.InitHandler.Init, "/init")
@@ -74,6 +81,9 @@ func initRoutes() {
 	addRoute(handler.RoleHandler.Delete, "/role/delete", "Admin")
 	addRoute(handler.RoleHandler.RemoveUser, "/role/users/remove", "Admin")
 	addRoute(handler.RoleHandler.AddUser, "/role/users/add", "Admin")
+
+	//File
+	addRoute(handler.FileHandler.List, "/file/list")
 
 }
 
