@@ -21,8 +21,18 @@
 			<td>{{ .Data.Name }}</td>
 		</tr>
 		<tr>
-			<th>Users</th>
-			<td>{{ .Data.Users }}</td>
+			<th colspan="2">Users</th>
+		</tr>
+		<tr>
+			<td colspan="2">				
+				{{$roleId := .Data.ID}}
+				<a href="/role/users/add?id={{$roleId}}">Add user</a>
+				<ul>
+					{{ range .Data.Users }}
+						<li><a href="/user/retrieve?id={{.ID}}">{{ .Email }}</a> - <a href="/role/users/remove?id={{$roleId}}&uid={{ .ID }}">Remove</a></li>
+					{{ end }}
+				</ul>
+			</td>
 		</tr>		
     </table>
 </body>

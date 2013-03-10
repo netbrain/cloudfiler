@@ -131,6 +131,24 @@ func TestInjectSeveralIntDataToStruct(t *testing.T) {
 	}
 }
 
+func TestInjectIntDataToStructSlice(t *testing.T) {
+	src := createValueMap("ints", "1")
+	target := &TestDataForm{}
+
+	fdi := NewDataInjector(src, target)
+	fdi.Inject()
+
+	if len(target.Ints) != 1 {
+		t.Logf("taget.Ints: %#v", target.Ints)
+		t.Fatal("Correct data was not injected")
+	}
+
+	if !reflect.DeepEqual(
+		target.Ints, []int{1}) {
+		t.Fatalf("Incorrect data injected, found: %#v", target.Ints)
+	}
+}
+
 func TestInjectSeveralBoolDataToStruct(t *testing.T) {
 	src := createValueMap("bools", "0", "1", "T", "f", "True", "false")
 	target := &TestDataForm{}

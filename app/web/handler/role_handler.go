@@ -3,8 +3,10 @@ package handler
 import (
 	"fmt"
 	. "github.com/netbrain/cloudfiler/app/controller"
+	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/web"
 	"net/http"
+	"strconv"
 )
 
 type RoleData struct {
@@ -13,13 +15,15 @@ type RoleData struct {
 }
 
 type RoleHandler struct {
-	controller RoleController
-	data       RoleData
+	roleController RoleController
+	userController UserController
+	data           RoleData
 }
 
-func NewRoleHandler(c RoleController) RoleHandler {
+func NewRoleHandler(roleController RoleController, userController UserController) RoleHandler {
 	return RoleHandler{
-		controller: c,
+		roleController: roleController,
+		userController: userController,
 	}
 }
 
@@ -28,7 +32,7 @@ func (h RoleHandler) List(ctx *Context) interface{} {
 		"Cache-Control",
 		"no-cache, max-age=0, must-revalidate, no-store",
 	)
-	roles, err := h.controller.Roles()
+	roles, err := h.roleController.Roles()
 	if err != nil {
 		Error(fmt.Errorf("Could not fetch role list due to error: %v", err))
 	}
@@ -36,7 +40,7 @@ func (h RoleHandler) List(ctx *Context) interface{} {
 }
 
 func (h RoleHandler) Create(ctx *Context) interface{} {
-	ctrl := h.controller
+	ctrl := h.roleController
 	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
 		data := &h.data
 		ctx.InjectData(data)
@@ -45,7 +49,7 @@ func (h RoleHandler) Create(ctx *Context) interface{} {
 			//TODO
 			//ctx.AddFlashMessage("Role already registered")
 		}
-		if err := ctrl.Create(data.Name); err != nil {
+		if _, err := ctrl.Create(data.Name); err != nil {
 			return Error(err)
 		}
 
@@ -59,7 +63,7 @@ func (h RoleHandler) Retrieve(ctx *Context) interface{} {
 	data := &h.data
 	ctx.InjectData(data)
 
-	role, err := h.controller.Role(data.Id)
+	role, err := h.roleController.Role(data.Id)
 	if err != nil {
 		return Error(err)
 	}
@@ -77,7 +81,7 @@ func (h RoleHandler) Update(ctx *Context) interface{} {
 
 	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
 
-		if err := h.controller.Update(data.Id, data.Name); err != nil {
+		if err := h.roleController.Update(data.Id, data.Name); err != nil {
 			return Error(err)
 		}
 		ctx.Redirect(RoleHandler.List)
@@ -85,17 +89,94 @@ func (h RoleHandler) Update(ctx *Context) interface{} {
 
 	}
 	return h.Retrieve(ctx)
-
 }
 
 func (h RoleHandler) Delete(ctx *Context) interface{} {
 	data := &h.data
 	ctx.InjectData(data)
 
-	if err := h.controller.Delete(data.Id); err != nil {
+	if err := h.roleController.Delete(data.Id); err != nil {
 		return Error(err)
 	}
 
 	ctx.Redirect(RoleHandler.List)
+	return nil
+}
+
+func (h RoleHandler) AddUser(ctx *Context) interface{} {
+	data := struct {
+		Uid []int
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	role, err := h.roleController.Role(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if role == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
+		for _, uid := range data.Uid {
+			user, err := h.userController.User(uid)
+
+			if err != nil {
+				return Error(err)
+			} else if user == nil {
+				return Error(http.StatusNotFound)
+			}
+
+			if err := h.roleController.AddUser(role, user); err != nil {
+				return Error(err)
+			}
+		}
+		//TODO make it possible to add parameters to redirect actions
+		// e.g ctx.Redirect(RoleHandler.Retrieve,data.Id)
+		ctx.Redirect("/role/retrieve?id=" + strconv.Itoa(data.Id))
+		return nil
+	}
+
+	users, _ := h.userController.Users()
+	out := struct {
+		Role  *Role
+		Users []User
+	}{
+		Role:  role,
+		Users: users,
+	}
+
+	return out
+}
+
+func (h RoleHandler) RemoveUser(ctx *Context) interface{} {
+	data := struct {
+		Uid int
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	user, err := h.userController.User(data.Uid)
+	if err != nil {
+		return Error(err)
+	}
+
+	role, err := h.roleController.Role(data.Id)
+	if err != nil {
+		return Error(err)
+	}
+
+	if role == nil || user == nil {
+		return Error(http.StatusNotFound)
+	}
+	if !(role.Name == "Admin" && len(role.Users) == 1) {
+		if err := h.roleController.RemoveUser(role, user); err != nil {
+			return Error(err)
+		}
+	} else {
+		//TODO add flash message
+	}
+
+	ctx.Redirect(ctx.GetRequestHeader("Referer"))
 	return nil
 }

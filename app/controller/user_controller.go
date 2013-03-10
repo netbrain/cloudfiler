@@ -30,22 +30,26 @@ func (c UserController) UserByEmail(email string) (*User, error) {
 	return c.UserRepository.FindByEmail(email)
 }
 
-func (c UserController) Create(email, password string) error {
+func (c UserController) Create(email, password string) (*User, error) {
 	email = strings.TrimSpace(email)
 	email = strings.ToLower(email)
 	if err := validatePassword(password); err != nil {
-		return err
+		return nil, err
 	}
 	if user, err := c.UserRepository.FindByEmail(email); user != nil {
-		return fmt.Errorf("Cannot create user, email already registered")
+		return nil, fmt.Errorf("Cannot create user, email already registered")
 	} else if err != nil {
-		return err
+		return nil, err
 	}
 
 	u := &User{Email: email}
 	u.SetPassword(password)
 
-	return c.UserRepository.Store(u)
+	err := c.UserRepository.Store(u)
+	if err != nil {
+		return nil, err
+	}
+	return u, err
 }
 
 func (c UserController) Delete(id int) error {
@@ -64,6 +68,10 @@ func (c UserController) Update(id int, email, password string) error {
 		return err
 	}
 	return fmt.Errorf("User not found")
+}
+
+func (c UserController) Count() (int, error) {
+	return c.UserRepository.Count()
 }
 
 func validatePassword(password string) error {

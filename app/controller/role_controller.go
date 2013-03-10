@@ -8,56 +8,90 @@ import (
 )
 
 type RoleController struct {
-	RoleRepository RoleRepository
+	roleRepository RoleRepository
+	userRepository UserRepository
 }
 
-func NewRoleController(repository RoleRepository) RoleController {
+func NewRoleController(roleRepository RoleRepository, userRepository UserRepository) RoleController {
 	c := RoleController{
-		RoleRepository: repository,
+		roleRepository: roleRepository,
+		userRepository: userRepository,
 	}
 	return c
 }
 
 func (c RoleController) Roles() ([]Role, error) {
-	return c.RoleRepository.All()
+	return c.roleRepository.All()
 }
 
 func (c RoleController) Role(id int) (*Role, error) {
-	return c.RoleRepository.FindById(id)
+	return c.roleRepository.FindById(id)
 }
 
 func (c RoleController) RoleByName(name string) (*Role, error) {
 	name = c.normalizeName(name)
-	return c.RoleRepository.FindByName(name)
+	return c.roleRepository.FindByName(name)
 }
 
-func (c RoleController) Create(name string) error {
+func (c RoleController) Create(name string) (*Role, error) {
 	name = c.normalizeName(name)
-	if role, err := c.RoleRepository.FindByName(name); role != nil {
-		return fmt.Errorf("Cannot create role, name already registered")
+	if role, err := c.roleRepository.FindByName(name); role != nil {
+		return nil, fmt.Errorf("Cannot create role, name already registered")
 	} else if err != nil {
-		return err
+		return nil, err
 	}
 
 	r := &Role{Name: name}
-
-	return c.RoleRepository.Store(r)
+	err := c.roleRepository.Store(r)
+	if err != nil {
+		return nil, err
+	}
+	return r, err
 }
 
 func (c RoleController) Delete(id int) error {
-	return c.RoleRepository.Erase(id)
+	return c.roleRepository.Erase(id)
 }
 
 func (c RoleController) Update(id int, name string) error {
 	name = c.normalizeName(name)
 
-	if role, err := c.RoleRepository.FindById(id); role != nil {
+	if role, err := c.roleRepository.FindById(id); role != nil {
 		role.Name = name
-		return c.RoleRepository.Store(role)
+		return c.roleRepository.Store(role)
 	} else if err != nil {
 		return err
 	}
 	return fmt.Errorf("Role not found")
+}
+
+func (c RoleController) AddUser(role *Role, user *User) error {
+	if !c.HasUser(role, user) {
+		role.Users = append(role.Users, *user)
+		return c.roleRepository.Store(role)
+	}
+	return nil
+}
+
+func (c RoleController) HasUser(role *Role, user *User) bool {
+	for _, u := range role.Users {
+		if user.Equals(u) {
+			return true
+		}
+	}
+	return false
+}
+
+func (c RoleController) RemoveUser(role *Role, user *User) error {
+	for i, u := range role.Users {
+		if user.Equals(u) {
+			l := len(role.Users) - 1
+			role.Users[i] = role.Users[l]
+			role.Users = role.Users[:l]
+			break
+		}
+	}
+	return c.roleRepository.Store(role)
 }
 
 func (c RoleController) normalizeName(name string) string {

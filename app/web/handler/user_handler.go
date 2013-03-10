@@ -60,7 +60,7 @@ func (handler UserHandler) Create(ctx *Context) interface{} {
 				//TODO
 				//ctx.AddFlashMessage("Email already registered")
 			}
-			if err := ctrl.Create(data.Email, data.Password); err != nil {
+			if _, err := ctrl.Create(data.Email, data.Password); err != nil {
 				return Error(err)
 			}
 

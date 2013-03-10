@@ -33,28 +33,17 @@ func initApplication() {
 
 	//init controllers
 	userController := controller.NewUserController(userRepo)
-	roleController := controller.NewRoleController(roleRepo)
-
-	//create initial data if necessary
-	adminRole, err := roleController.RoleByName("Admin")
-	if err != nil {
-		panic(err)
-	}
-
-	if adminRole == nil {
-		log.Println("Creating Admin role")
-		if err := roleController.Create("Admin"); err != nil {
-			panic(err)
-		}
-	}
+	roleController := controller.NewRoleController(roleRepo, userRepo)
 
 	//init handlers
+	initHandler := handler.NewInitHandler(userController, roleController)
 	userHandler := handler.NewUserHandler(userController)
-	roleHandler := handler.NewRoleHandler(roleController)
+	roleHandler := handler.NewRoleHandler(roleController, userController)
 	authHandler := handler.NewAuthHandler(authenticator)
 
 	//wire it all up
 	log.Println("Adding web handlers...")
+	muxer.AddHandler(initHandler)
 	muxer.AddHandler(authHandler)
 	muxer.AddHandler(userHandler)
 	muxer.AddHandler(roleHandler)
@@ -62,6 +51,9 @@ func initApplication() {
 
 func initRoutes() {
 	log.Println("Adding routing table...")
+
+	//Init
+	addRoute(handler.InitHandler.Init, "/init")
 
 	//Auth
 	addRoute(handler.AuthHandler.Login, "/auth/login")
@@ -80,6 +72,8 @@ func initRoutes() {
 	addRoute(handler.RoleHandler.Retrieve, "/role/retrieve", "Admin")
 	addRoute(handler.RoleHandler.Update, "/role/update", "Admin")
 	addRoute(handler.RoleHandler.Delete, "/role/delete", "Admin")
+	addRoute(handler.RoleHandler.RemoveUser, "/role/users/remove", "Admin")
+	addRoute(handler.RoleHandler.AddUser, "/role/users/add", "Admin")
 
 }
 

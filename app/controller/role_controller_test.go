@@ -11,7 +11,9 @@ var roleController RoleController
 
 func initRoleControllerTest() {
 	roleRepo = NewRoleRepository()
-	roleController = NewRoleController(roleRepo)
+	userRepo = NewUserRepository()
+	roleController = NewRoleController(roleRepo, userRepo)
+	userController = NewUserController(userRepo)
 }
 
 func TestRoles(t *testing.T) {
@@ -33,8 +35,7 @@ func TestCreateRole(t *testing.T) {
 	initRoleControllerTest()
 
 	name := "Testrole"
-	roleController.Create(name)
-	role, _ := roleRepo.FindByName(name)
+	role, _ := roleController.Create(name)
 	if role == nil {
 		t.Fatal("Role was not created!")
 	}
@@ -44,8 +45,7 @@ func TestDeleteRole(t *testing.T) {
 	initRoleControllerTest()
 
 	name := "Testrole"
-	roleController.Create(name)
-	role, _ := roleRepo.FindByName(name)
+	role, _ := roleController.Create(name)
 	roleController.Delete(role.ID)
 
 	all, _ := roleRepo.All()
@@ -58,7 +58,7 @@ func TestCreateTwoRolesWithIdenticalName(t *testing.T) {
 	initRoleControllerTest()
 
 	roleController.Create("Testrole")
-	if err := roleController.Create("TestRole"); err == nil {
+	if _, err := roleController.Create("TestRole"); err == nil {
 		t.Fatal("Illegal creation of two roles with identical name! this should have failed!")
 	}
 }
@@ -90,5 +90,73 @@ func TestGetRoleByIDWhereNoneExist(t *testing.T) {
 
 	if role != nil {
 		t.Fatal("Role found! when it should not!")
+	}
+}
+
+func TestAddUserToRole(t *testing.T) {
+	initRoleControllerTest()
+	role, err := roleController.Create("testrole")
+
+	if err != nil {
+		t.Fatal("Error occured when trying to create role")
+	}
+
+	user, err := userController.Create("test@test.test", "testpasswd")
+
+	if err != nil {
+		t.Fatal("Error occured when trying to create user")
+	}
+
+	if err := roleController.AddUser(role, user); err != nil {
+		t.Fatalf("Got error when trying to add user to role %v", err)
+	}
+
+	role, err = roleController.Role(role.ID)
+	if err != nil {
+		t.Fatal("Error occured when trying to fetch  updated role")
+	}
+
+	if len(role.Users) != 1 {
+		t.Fatalf("Expected 1 user added")
+	}
+
+	if !user.Equals(role.Users[0]) {
+		t.Fatal("Expected equality")
+	}
+}
+
+func TestRoleHasUser(t *testing.T) {
+	initRoleControllerTest()
+	role, _ := roleController.Create("testrole")
+	user, _ := userController.Create("test@test.test", "testpasswd")
+
+	if roleController.HasUser(role, user) {
+		t.Fatal("Fresh role should not have a user")
+	}
+
+	roleController.AddUser(role, user)
+
+	if !roleController.HasUser(role, user) {
+		t.Fatal("user not found in role!")
+	}
+
+}
+
+func TestRemoveUserFromRole(t *testing.T) {
+	initRoleControllerTest()
+	role, _ := roleController.Create("testrole")
+	user, _ := userController.Create("test@test.test", "testpasswd")
+	roleController.AddUser(role, user)
+
+	if len(role.Users) != 1 {
+		t.Fatalf("Expected 1 user added")
+	}
+
+	if err := roleController.RemoveUser(role, user); err != nil {
+		t.Fatal(err)
+	}
+
+	if len(role.Users) != 0 {
+		t.Fatalf("Expected zero users")
 	}
 }

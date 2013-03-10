@@ -58,7 +58,7 @@ func TestCreateUserWithInvalidPassword(t *testing.T) {
 	initUserControllerTest()
 
 	email := "create@user.test"
-	if err := userController.Create(email, "12"); err == nil {
+	if _, err := userController.Create(email, "12"); err == nil {
 		t.Fatal("Password should not be valid")
 	}
 }
@@ -81,7 +81,7 @@ func TestCreateTwoUsersWithIdenticalEmail(t *testing.T) {
 	initUserControllerTest()
 
 	userController.Create("dup@dup.test", "pwd")
-	if err := userController.Create("dup@dup.test", "pwd"); err == nil {
+	if _, err := userController.Create("dup@dup.test", "pwd"); err == nil {
 		t.Fatal("Illegal creation of two users with identical email! this should have failed!")
 	}
 }

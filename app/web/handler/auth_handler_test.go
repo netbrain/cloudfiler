@@ -13,7 +13,8 @@ var authHandler AuthHandler
 
 func initAuthHandlerTest() {
 	userRepo = NewUserRepository()
-	authenticator = NewAuthenticator(userRepo)
+	roleRepo = NewRoleRepository()
+	authenticator = NewAuthenticator(userRepo, roleRepo, "", "")
 	authHandler = NewAuthHandler(authenticator)
 }
 

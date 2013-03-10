@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -76,6 +77,9 @@ func (f *DataInjector) convertValues(t reflect.Value, s []string) (out interface
 			switch t.Type().Elem().Kind() {
 			case reflect.Uint8: //byte
 				out = []byte(in)
+			case reflect.Int: //int
+				i, _ := strconv.Atoi(in)
+				out = []int{i}
 			default:
 				panic("Unknown slice element kind")
 			}
@@ -106,7 +110,7 @@ func (f *DataInjector) convertValues(t reflect.Value, s []string) (out interface
 				panic("Unknown kind")
 			}
 		} else {
-			panic("Expected slice")
+			panic(fmt.Sprintf("Expected slice target for input %#v", s))
 		}
 	}
 	return

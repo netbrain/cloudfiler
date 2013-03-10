@@ -40,6 +40,10 @@ func (ctx *Context) GetHeader(key string) string {
 	return ctx.Writer.Header().Get(key)
 }
 
+func (ctx *Context) GetRequestHeader(key string) string {
+	return ctx.Request.Header.Get(key)
+}
+
 func (ctx *Context) Method() string {
 	return ctx.Request.Method
 }
@@ -57,7 +61,6 @@ func (ctx *Context) IsRedirected() bool {
 }
 
 func (ctx *Context) InjectData(dataObject interface{}) {
-	ctx.injectData(ctx.Request.URL.Query(), dataObject)
 	ctx.Request.ParseForm()
 	ctx.injectData(ctx.Request.Form, dataObject)
 }
