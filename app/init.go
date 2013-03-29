@@ -25,6 +25,7 @@ func initApplication() {
 	//init repositories
 	userRepo := mem.NewUserRepository()
 	roleRepo := mem.NewRoleRepository()
+	fileRepo := mem.NewFileRepository()
 
 	//init interceptor chain
 	authenticator = auth.NewAuthenticator(userRepo, roleRepo, "/auth/login", "/")
@@ -34,6 +35,7 @@ func initApplication() {
 	//init controllers
 	userController := controller.NewUserController(userRepo)
 	roleController := controller.NewRoleController(roleRepo, userRepo)
+	fileController := controller.NewFileController(fileRepo)
 
 	//init handlers
 	indexHandler := handler.NewIndexHandler(authenticator, userController)
@@ -41,7 +43,7 @@ func initApplication() {
 	userHandler := handler.NewUserHandler(userController)
 	roleHandler := handler.NewRoleHandler(roleController, userController)
 	authHandler := handler.NewAuthHandler(authenticator)
-	fileHandler := handler.NewFileHandler()
+	fileHandler := handler.NewFileHandler(authenticator, fileController)
 
 	//wire it all up
 	log.Println("Adding web handlers...")
@@ -84,6 +86,9 @@ func initRoutes() {
 
 	//File
 	addRoute(handler.FileHandler.List, "/file/list")
+	addRoute(handler.FileHandler.Upload, "/file/upload")
+	addRoute(handler.FileHandler.Retrieve, "/file/retrieve")
+	addRoute(handler.FileHandler.Download, "/file/download")
 
 }
 

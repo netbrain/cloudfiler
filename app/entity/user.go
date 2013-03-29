@@ -32,3 +32,7 @@ func (u *User) SetPassword(password string) error {
 func (u *User) PasswordEquals(password string) bool {
 	return bcrypt.CompareHashAndPassword(u.Password, []byte(password)) == nil
 }
+
+func (u User) String() string {
+	return u.Email
+}

@@ -104,17 +104,20 @@ func (m Muxer) Handle(w http.ResponseWriter, r *http.Request) bool {
 			ctx.Data = m.handleAction(action, ctx)
 		}
 
-		switch d := ctx.Data.(type) {
-		case *AppError:
-			m.handleAppError(d, w, bw)
-		default:
-			if ctx.IsRedirected() {
-				m.handleRedirect(ctx)
-			} else {
-				//handle view
-				RenderView(view, bw, ctx)
+		if !ctx.rawResponse {
+			switch d := ctx.Data.(type) {
+			case *AppError:
+				m.handleAppError(d, w, bw)
+			default:
+				if ctx.IsRedirected() {
+					m.handleRedirect(ctx)
+				} else {
+					//handle view
+					RenderView(view, bw, ctx)
+				}
 			}
 		}
+
 	} else {
 		log.Printf("No handler for path: %s returning status: %v", path, http.StatusNotFound)
 		view := "error/404"

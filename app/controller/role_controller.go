@@ -66,20 +66,11 @@ func (c RoleController) Update(id int, name string) error {
 }
 
 func (c RoleController) AddUser(role *Role, user *User) error {
-	if !c.HasUser(role, user) {
+	if !role.HasUser(*user) {
 		role.Users = append(role.Users, *user)
 		return c.roleRepository.Store(role)
 	}
 	return nil
-}
-
-func (c RoleController) HasUser(role *Role, user *User) bool {
-	for _, u := range role.Users {
-		if user.Equals(u) {
-			return true
-		}
-	}
-	return false
 }
 
 func (c RoleController) RemoveUser(role *Role, user *User) error {

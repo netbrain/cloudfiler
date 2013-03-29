@@ -27,8 +27,15 @@ func (v *FormValidator) ValidateRequestData(r *http.Request) (bool, map[string][
 		form = form.Clone()
 		if form.IsMultipart() {
 			log.Println("Form is multipart")
-			r.ParseMultipartForm(0)
+			r.ParseMultipartForm(10 << 20) //10mb
 			form.AddFormValues(r.MultipartForm.Value)
+			for key, val := range r.MultipartForm.File {
+				var filenames []string
+				for _, fh := range val {
+					filenames = append(filenames, fh.Filename)
+				}
+				form.AddFormValue(key, filenames...)
+			}
 		} else {
 			log.Println("Form is not multipart")
 			r.ParseForm()

@@ -11,6 +11,7 @@ type Context struct {
 	Request          *http.Request
 	Writer           http.ResponseWriter
 	redirect         interface{}
+	rawResponse      bool
 	formValidator    *fvgo.FormValidator
 }
 
@@ -19,6 +20,7 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 		Request:       r,
 		Writer:        w,
 		formValidator: FormValidator,
+		rawResponse:   false,
 	}
 	_, ctx.ValidationErrors = ctx.formValidator.ValidateRequestData(ctx.Request)
 	return ctx
@@ -89,4 +91,8 @@ func (ctx *Context) AddFieldValidationError(fieldName string, errs ...error) {
 
 func (ctx *Context) HasValidationErrors() bool {
 	return len(ctx.ValidationErrors) > 0
+}
+
+func (ctx *Context) SetRawResponse(b bool) {
+	ctx.rawResponse = b
 }

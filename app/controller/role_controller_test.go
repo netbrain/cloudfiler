@@ -130,13 +130,13 @@ func TestRoleHasUser(t *testing.T) {
 	role, _ := roleController.Create("testrole")
 	user, _ := userController.Create("test@test.test", "testpasswd")
 
-	if roleController.HasUser(role, user) {
+	if role.HasUser(*user) {
 		t.Fatal("Fresh role should not have a user")
 	}
 
 	roleController.AddUser(role, user)
 
-	if !roleController.HasUser(role, user) {
+	if !role.HasUser(*user) {
 		t.Fatal("user not found in role!")
 	}
 

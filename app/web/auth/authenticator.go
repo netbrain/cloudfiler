@@ -126,6 +126,10 @@ func (a *Authenticator) AuthorizedUserID(r *http.Request) int {
 	return 0
 }
 
+func (a *Authenticator) AuthorizedUser(r *http.Request) (*User, error) {
+	return a.userRepository.FindById(a.AuthorizedUserID(r))
+}
+
 func (a Authenticator) Handle(w http.ResponseWriter, r *http.Request) bool {
 	if r.URL.Path == a.loginUrl {
 		return true

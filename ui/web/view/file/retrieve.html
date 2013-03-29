@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>File: {{.Data.Name}}</title>
+</head>
+
+<body>
+	<h1>File: {{.Data.Name}}</h1>
+    <table border="1">
+		<tbody>
+        	<tr>
+        		<td>Id</td>
+        		<td>{{.Data.ID}}</td>
+        	<tr>
+			<tr>
+        		<td>Name</td>
+        		<td>{{.Data.Name}}</td>
+        	<tr>
+			<tr>
+        		<td>Owner</td>
+        		<td>{{.Data.Owner}}</td>
+        	<tr>
+        	<tr>
+        		<td>Tags</td>
+        		<td>
+        			<ul>
+        				{{range .Data.Tags}}
+        				<li>{{.}}</li>
+        				{{end}}
+        			</ul>
+        		</td>
+        	<tr>
+			<tr>
+        		<td>Users</td>
+        		<td>
+        			<ul>
+        				{{range .Data.Users}}
+        				<li>{{.}}</li>
+        				{{end}}
+        			</ul>
+        		</td>
+        	<tr>
+			<tr>
+        		<td>Roles</td>
+        		<td>
+        			<ul>
+        				{{range .Data.Roles}}
+        				<li>{{.}}</li>
+        				{{end}}
+        			</ul>
+        		</td>
+        	<tr>
+			<tr>
+        		<td colspan="2"><a href="/file/download?id={{.Data.ID}}">Download</a></td>
+        	<tr>        	        		
+		</tbody>
+    </table>
+</body>
+
+</html>

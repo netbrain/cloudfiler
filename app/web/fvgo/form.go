@@ -40,12 +40,16 @@ func (f *Form) Validate() (bool, map[string][]error) {
 func (f *Form) AddFormValues(values map[string][]string) {
 	log.Println("Adding form values")
 	for key, val := range values {
-		if _, exist := f.fields[key]; exist {
-			log.Printf("%s => %s", key, val)
-			f.fields[key].value = val
-		}
+		f.AddFormValue(key, val...)
 	}
 	log.Println("Done adding form values")
+}
+
+func (f *Form) AddFormValue(key string, val ...string) {
+	if _, exist := f.fields[key]; exist {
+		log.Printf("%s => %s", key, val)
+		f.fields[key].value = []string(val)
+	}
 }
 
 func (f *Form) Action() string {
