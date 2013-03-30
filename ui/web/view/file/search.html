@@ -6,6 +6,9 @@
 
 <body>
 	<h1>Search results for {{.Params "q" }}</h1>
+	<form action="/file/search">
+		<input type="search" placeholder="Search" name="query" value="{{.Params "q" }}"/>
+	</form>	
     <table border="1">
 		<thead>
 			<tr>
