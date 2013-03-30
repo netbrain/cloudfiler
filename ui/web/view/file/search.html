@@ -1,29 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>List of Files</title>
+<title>Search results for {{.Params "q" }}</title>
 </head>
 
 <body>
-	<h1>List of Files</h1>
-	<form action="/file/search">
-		<input type="search" placeholder="Search" name="query" />
-	</form>
+	<h1>Search results for {{.Params "q" }}</h1>
     <table border="1">
 		<thead>
 			<tr>
 				<th>Name</th>
+				<th>Tags</th>
 				<th>Owner</th>
-				<th><a href="/file/upload">Upload file</a></th>
 			</tr>
 		</thead>
         {{ range .Data }}
 		<tbody>
         	<tr>
         	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
+				<td>
+					{{if .Tags}}
+						<ul>
+							{{range .Tags}}
+								<li>{{.}}</li>
+							{{end}}
+						</ul>
+					{{else}}
+						Not tagged
+					{{end}}
+				</td>
         	    <td>{{ .Owner }}</td>
-				<td><a href="/file/delete?id={{ .ID }}">Remove</a></td> 
-        	<tr>
+        	</tr>
 		</tbody>
         {{ end }}
     </table>

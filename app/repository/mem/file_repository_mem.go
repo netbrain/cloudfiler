@@ -35,16 +35,6 @@ func (r FileRepositoryMem) All() ([]File, error) {
 	return files, nil
 }
 
-func (r FileRepositoryMem) AllWhereUserHasAccess(user User) ([]File, error) {
-	files := []File{}
-	for _, file := range r.files {
-		if file.Owner.Equals(user) {
-			files = append(files, file)
-		}
-	}
-	return files, nil
-}
-
 func (r FileRepositoryMem) FindById(id int) (*File, error) {
 	if file, ok := r.files[id]; ok {
 		return &file, nil

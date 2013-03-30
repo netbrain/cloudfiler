@@ -24,3 +24,7 @@ func (r *Role) HasUser(user User) bool {
 	}
 	return false
 }
+
+func (r Role) String() string {
+	return r.Name
+}

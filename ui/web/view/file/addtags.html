@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Set tag(s) on file</title>
+</head>
+
+<body>
+	<h1>Set tag(s) on file: {{.Data.Name}}</h1>
+    <form id="addTagForm" method="post" action="/file/tags/set?id={{.Data.ID}}" autocomplete="off">
+      <p>Type a space separated list of tags:</p>
+      <div>
+          {{/* TODO is name attr required? */}}
+          <input name="tagInput" id="tagInput" type="text" value="{{stringsJoin .Data.Tags " "}}" />          
+      </div>
+      <div><input type="submit" value="Add tags(s)" /></div>
+    </form>
+    <script type="text/javascript">
+      (function(){
+          var tagInput = document.getElementById('tagInput');
+          
+          function createTagList(){
+              var tags = tagInput.value.split(' ');
+              var tagList = document.getElementById('tagList');        
+              if(tagList){
+                  tagList.innerHTML = '';
+              }else{
+                  tagList = document.createElement('ul');
+                  tagList.id = "tagList";
+                  tagInput.parentNode.appendChild(tagList);  
+              }
+              if(tagInput.value.length !== 0){
+                  for(var x = 0; x < tags.length; x++){
+                      var tag = tags[x];
+                      if(tag.length > 0){                
+                          var li = document.createElement('li');
+                          li.innerHTML = tag;
+                          tagList.appendChild(li);
+
+                          var hidden = document.createElement('input');
+                          hidden.type = 'hidden';
+                          hidden.name = 'tag';
+                          hidden.value = tag;
+                          tagList.appendChild(hidden);
+                      }
+                  }
+              }
+          }
+          
+          tagInput.onkeyup = function(){
+              setTimeout(createTagList,10)         
+          };
+
+          createTagList();
+      })()
+    </script>
+</body>
+
+</html>

@@ -1,5 +1,9 @@
 package entity
 
+import (
+	"time"
+)
+
 type FileData interface {
 	Close() error
 	Read([]byte) (int, error)
@@ -9,13 +13,14 @@ type FileData interface {
 }
 
 type File struct {
-	ID    int
-	Name  string
-	Owner User
-	Tags  []string
-	Users []User
-	Roles []Role
-	Data  FileData
+	ID       int
+	Name     string
+	Owner    User
+	Tags     []string
+	Users    []User
+	Roles    []Role
+	Data     FileData
+	Uploaded time.Time
 }
 
 func (f *File) Equals(other interface{}) bool {

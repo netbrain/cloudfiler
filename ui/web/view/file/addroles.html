@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add role(s) to file</title>
+</head>
+
+<body>
+	<h1>Add role(s) to file: {{.Data.File.Name}}</h1>
+    <form method="post" action="/file/roles/add?id={{.Data.File.ID}}" autocomplete="off">
+      <div>
+        {{range .Data.Roles}}
+        <div>        
+          <input type="checkbox" name="rid" id="rid-{{.ID}}" value="{{.ID}}" />
+          <label for="rid-{{.ID}}">{{.Name}}</label>
+        </div>
+        {{end}}      
+      </div>
+      <div><input type="submit" value="Add role(s)" /></div>
+    </form>
+</body>
+
+</html>

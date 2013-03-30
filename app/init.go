@@ -43,7 +43,12 @@ func initApplication() {
 	userHandler := handler.NewUserHandler(userController)
 	roleHandler := handler.NewRoleHandler(roleController, userController)
 	authHandler := handler.NewAuthHandler(authenticator)
-	fileHandler := handler.NewFileHandler(authenticator, fileController)
+	fileHandler := handler.NewFileHandler(
+		authenticator,
+		fileController,
+		userController,
+		roleController,
+	)
 
 	//wire it all up
 	log.Println("Adding web handlers...")
@@ -89,6 +94,15 @@ func initRoutes() {
 	addRoute(handler.FileHandler.Upload, "/file/upload")
 	addRoute(handler.FileHandler.Retrieve, "/file/retrieve")
 	addRoute(handler.FileHandler.Download, "/file/download")
+	addRoute(handler.FileHandler.AddUsers, "/file/users/add")
+	addRoute(handler.FileHandler.RemoveUsers, "/file/users/remove")
+	addRoute(handler.FileHandler.AddRoles, "/file/roles/add")
+	addRoute(handler.FileHandler.RemoveRoles, "/file/roles/remove")
+	addRoute(handler.FileHandler.AddTags, "/file/tags/add")
+	addRoute(handler.FileHandler.RemoveTags, "/file/tags/remove")
+	addRoute(handler.FileHandler.SetTags, "/file/tags/set")
+	addRoute(handler.FileHandler.Delete, "/file/delete")
+	addRoute(handler.FileHandler.Search, "/file/search")
 
 }
 

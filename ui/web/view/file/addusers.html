@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add user(s) to file</title>
+</head>
+
+<body>
+	<h1>Add user(s) to file: {{.Data.File.Name}}</h1>
+    <form method="post" action="/file/users/add?id={{.Data.File.ID}}" autocomplete="off">
+      <div>
+        {{range .Data.Users}}
+        <div>        
+          <input type="checkbox" name="uid" id="uid-{{.ID}}" value="{{.ID}}" />
+          <label for="uid-{{.ID}}">{{.Email}}</label>
+        </div>
+        {{end}}      
+      </div>
+      <div><input type="submit" value="Add user(s)" /></div>
+    </form>
+</body>
+
+</html>

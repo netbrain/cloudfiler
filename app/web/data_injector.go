@@ -80,6 +80,8 @@ func (f *DataInjector) convertValues(t reflect.Value, s []string) (out interface
 			case reflect.Int: //int
 				i, _ := strconv.Atoi(in)
 				out = []int{i}
+			case reflect.String:
+				out = s
 			default:
 				panic("Unknown slice element kind")
 			}

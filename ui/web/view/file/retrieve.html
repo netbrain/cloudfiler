@@ -5,54 +5,68 @@
 </head>
 
 <body>
+    {{$fileId := .Data.ID}}
 	<h1>File: {{.Data.Name}}</h1>
     <table border="1">
 		<tbody>
         	<tr>
         		<td>Id</td>
         		<td>{{.Data.ID}}</td>
-        	<tr>
+        	</tr>
 			<tr>
         		<td>Name</td>
         		<td>{{.Data.Name}}</td>
+        	</tr>
+            <tr>
+                <td>Owner</td>
+                <td>{{.Data.Owner}}</td>
+            </tr>
+            <tr>
+                <td>Uploaded</td>
+                <td>{{.Data.Uploaded}}</td>
+            </tr>
+            <tr>
+                <th colspan="2">Tags</th>
+            </tr>
         	<tr>
-			<tr>
-        		<td>Owner</td>
-        		<td>{{.Data.Owner}}</td>
-        	<tr>
-        	<tr>
-        		<td>Tags</td>
-        		<td>
+        		<td colspan="2">
+                    <a href="/file/tags/add?id={{$fileId}}">Set tags</a>                       
         			<ul>
         				{{range .Data.Tags}}
-        				<li>{{.}}</li>
+        				<li>{{.}} - <a href="/file/tags/remove?id={{$fileId}}&tag={{.}}">Remove</a></li></li>
         				{{end}}
         			</ul>
         		</td>
-        	<tr>
-			<tr>
-        		<td>Users</td>
-        		<td>
+        	</tr>
+            <tr>
+                <th colspan="2">Users</th>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <a href="/file/users/add?id={{$fileId}}">Add user</a>                    
         			<ul>
         				{{range .Data.Users}}
-        				<li>{{.}}</li>
+        				<li>{{.}} - <a href="/file/users/remove?id={{$fileId}}&uid={{.ID}}">Remove</a></li>
         				{{end}}
         			</ul>
         		</td>
-        	<tr>
-			<tr>
-        		<td>Roles</td>
-        		<td>
+        	</tr>
+            <tr>
+                <th colspan="2">Roles</th>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <a href="/file/roles/add?id={{$fileId}}">Add role</a>
         			<ul>
         				{{range .Data.Roles}}
-        				<li>{{.}}</li>
+        				<li>{{.}} - <a href="/file/roles/remove?id={{$fileId}}&rid={{.ID}}">Remove</a></li></li>
         				{{end}}
         			</ul>
         		</td>
-        	<tr>
+        	</tr>
 			<tr>
-        		<td colspan="2"><a href="/file/download?id={{.Data.ID}}">Download</a></td>
-        	<tr>        	        		
+        		<td colspan="2"><a href="/file/download?id={{$fileId}}">Download</a></td>
+        	</tr>        	        		
 		</tbody>
     </table>
 </body>

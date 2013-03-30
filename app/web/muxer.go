@@ -190,6 +190,6 @@ func (m *Muxer) handleRedirect(ctx *Context) {
 		ctx.Writer,
 		ctx.Request,
 		path,
-		http.StatusTemporaryRedirect,
+		http.StatusFound,
 	)
 }

@@ -124,7 +124,7 @@ func (h RoleHandler) AddUser(ctx *Context) interface{} {
 			if err != nil {
 				return Error(err)
 			} else if user == nil {
-				return Error(http.StatusNotFound)
+				continue
 			}
 
 			if err := h.roleController.AddUser(role, user); err != nil {

@@ -2,26 +2,33 @@ package handler
 
 import (
 	. "github.com/netbrain/cloudfiler/app/controller"
+	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/repository/mem"
 	. "github.com/netbrain/cloudfiler/app/web"
 	. "github.com/netbrain/cloudfiler/app/web/auth"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 type FileHandler struct {
 	fileController FileController
+	userController UserController
+	roleController RoleController
 	authenticator  Authenticator
-	data           struct {
-		//File *multipart.FileHeader
-		Id int
-	}
 }
 
-func NewFileHandler(authenticator Authenticator, fileController FileController) FileHandler {
+func NewFileHandler(
+	authenticator Authenticator,
+	fileController FileController,
+	userController UserController,
+	roleController RoleController) FileHandler {
+
 	return FileHandler{
 		fileController: fileController,
+		userController: userController,
+		roleController: roleController,
 		authenticator:  authenticator,
 	}
 }
@@ -79,8 +86,10 @@ func (h FileHandler) Upload(ctx *Context) interface{} {
 }
 
 func (h FileHandler) Download(ctx *Context) interface{} {
-	data := &h.data
-	ctx.InjectData(data)
+	data := struct {
+		Id int
+	}{}
+	ctx.InjectData(&data)
 
 	file, err := h.fileController.File(data.Id)
 	if err != nil {
@@ -91,16 +100,22 @@ func (h FileHandler) Download(ctx *Context) interface{} {
 		return Error(http.StatusNotFound)
 	}
 
-	ctx.SetRawResponse(true)
-	ctx.SetHeader("Content-Disposition", "attachment; filename="+file.Name)
-	http.ServeContent(ctx.Writer, ctx.Request, file.Name, time.Time{}, file.Data)
-
+	if h.hasAccess(file, ctx) {
+		ctx.SetRawResponse(true)
+		ctx.SetHeader("Content-Disposition", "attachment; filename="+file.Name)
+		http.ServeContent(ctx.Writer, ctx.Request, file.Name, time.Time{}, file.Data)
+	} else {
+		//Used doesn't have access
+		return Error(http.StatusForbidden)
+	}
 	return nil
 }
 
 func (h FileHandler) Retrieve(ctx *Context) interface{} {
-	data := &h.data
-	ctx.InjectData(data)
+	data := struct {
+		Id int
+	}{}
+	ctx.InjectData(&data)
 
 	file, err := h.fileController.File(data.Id)
 	if err != nil {
@@ -111,5 +126,300 @@ func (h FileHandler) Retrieve(ctx *Context) interface{} {
 		return Error(http.StatusNotFound)
 	}
 
-	return file
+	if h.hasAccess(file, ctx) {
+		return file
+	}
+	return Error(http.StatusForbidden)
+}
+
+func (h FileHandler) AddUsers(ctx *Context) interface{} {
+	data := struct {
+		Uid []int
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	file, err := h.fileController.File(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if file == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if h.hasAccess(file, ctx) {
+		if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
+			for _, uid := range data.Uid {
+				user, err := h.userController.User(uid)
+
+				if err != nil {
+					return Error(err)
+				} else if user == nil {
+					continue
+				}
+
+				if err := h.fileController.GrantUserAccessToFile(*user, file); err != nil {
+					return Error(err)
+				}
+			}
+			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+			return nil
+		}
+
+		users, _ := h.userController.Users()
+		out := struct {
+			File  *File
+			Users []User
+		}{
+			File:  file,
+			Users: users,
+		}
+
+		return out
+	}
+
+	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	return nil
+}
+
+func (h FileHandler) RemoveUsers(ctx *Context) interface{} {
+	data := struct {
+		Uid []int
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	file, err := h.fileController.File(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if file == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if h.hasAccess(file, ctx) {
+		for _, uid := range data.Uid {
+			user, err := h.userController.User(uid)
+
+			if err != nil {
+				return Error(err)
+			} else if user == nil {
+				continue
+			}
+
+			if err := h.fileController.RevokeUserAccessToFile(*user, file); err != nil {
+				return Error(err)
+			}
+		}
+	}
+
+	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	return nil
+}
+
+func (h FileHandler) AddRoles(ctx *Context) interface{} {
+	data := struct {
+		Rid []int
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	file, err := h.fileController.File(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if file == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if h.hasAccess(file, ctx) {
+		if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
+			for _, rid := range data.Rid {
+				role, err := h.roleController.Role(rid)
+
+				if err != nil {
+					return Error(err)
+				} else if role == nil {
+					continue
+				}
+
+				if err := h.fileController.GrantRoleAccessToFile(*role, file); err != nil {
+					return Error(err)
+				}
+			}
+			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+			return nil
+		}
+
+		roles, _ := h.roleController.Roles()
+		out := struct {
+			File  *File
+			Roles []Role
+		}{
+			File:  file,
+			Roles: roles,
+		}
+
+		return out
+	}
+
+	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	return nil
+}
+
+func (h FileHandler) RemoveRoles(ctx *Context) interface{} {
+	data := struct {
+		Rid []int
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	file, err := h.fileController.File(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if file == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if h.hasAccess(file, ctx) {
+		for _, rid := range data.Rid {
+			role, err := h.roleController.Role(rid)
+
+			if err != nil {
+				return Error(err)
+			} else if role == nil {
+				continue
+			}
+			if err := h.fileController.RevokeRoleAccessToFile(*role, file); err != nil {
+				return Error(err)
+			}
+		}
+	}
+
+	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	return nil
+}
+
+func (h FileHandler) AddTags(ctx *Context) interface{} {
+	data := struct {
+		Tag []string
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	file, err := h.fileController.File(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if file == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if h.hasAccess(file, ctx) {
+		if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
+			h.fileController.AddTags(file, data.Tag...)
+			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+			return nil
+		}
+
+		return file
+	}
+
+	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	return nil
+}
+
+func (h FileHandler) SetTags(ctx *Context) interface{} {
+	data := struct {
+		Tag []string
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	file, err := h.fileController.File(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if file == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if h.hasAccess(file, ctx) {
+		if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
+			h.fileController.SetTags(file, data.Tag...)
+			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+			return nil
+		}
+
+		return file
+	}
+
+	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	return nil
+}
+
+func (h FileHandler) RemoveTags(ctx *Context) interface{} {
+	data := struct {
+		Tag []string
+		Id  int
+	}{}
+	ctx.InjectData(&data)
+
+	file, err := h.fileController.File(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if file == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if h.hasAccess(file, ctx) {
+		h.fileController.RemoveTags(file, data.Tag...)
+	}
+
+	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	return nil
+}
+
+func (h FileHandler) Delete(ctx *Context) interface{} {
+	data := struct {
+		Id int
+	}{}
+	ctx.InjectData(&data)
+
+	file, err := h.fileController.File(data.Id)
+	if err != nil {
+		return Error(err)
+	} else if file == nil {
+		return Error(http.StatusNotFound)
+	}
+
+	if h.hasAccess(file, ctx) {
+		if err := h.fileController.Erase(file.ID); err != nil {
+			return Error(err)
+		}
+	}
+
+	ctx.Redirect(FileHandler.List)
+	return nil
+}
+
+func (h FileHandler) Search(ctx *Context) interface{} {
+	data := struct {
+		Query string
+	}{}
+	ctx.InjectData(&data)
+
+	user, _ := h.authenticator.AuthorizedUser(ctx.Request)
+	result, err := h.fileController.FileSearch(*user, data.Query)
+	if err != nil {
+		return Error(err)
+	}
+
+	return result
+}
+
+func (h FileHandler) hasAccess(file *File, ctx *Context) bool {
+	user, err := h.authenticator.AuthorizedUser(ctx.Request)
+	if err != nil {
+		panic(err)
+	} else if user == nil {
+		panic("this should not happen, user should always be authenticated")
+	}
+
+	return h.fileController.UserHasAccess(*user, *file)
 }

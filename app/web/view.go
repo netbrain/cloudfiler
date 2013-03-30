@@ -33,13 +33,11 @@ func loadTemplates() {
 			if strings.HasSuffix(info.Name(), ".html") {
 				log.Println(path)
 
-				tmpl, err := template.ParseFiles(path)
+				tmpl, err := template.New(info.Name()).Funcs(templateFunctions).ParseFiles(path)
 
 				if err != nil {
 					panic(err)
 				}
-				//TODO add a proper funcmap
-				tmpl.Funcs(template.FuncMap{})
 
 				FormValidator.ParseTemplate(path)
 
