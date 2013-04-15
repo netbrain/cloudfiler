@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	. "github.com/netbrain/cloudfiler/app/controller"
 	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/repository/mem"
@@ -411,6 +412,20 @@ func (h FileHandler) Search(ctx *Context) interface{} {
 	}
 
 	return result
+}
+
+func (h FileHandler) Tags(ctx *Context) interface{} {
+	tags := h.fileController.Tags()
+	out, err := json.Marshal(tags)
+
+	if err != nil {
+		panic(err)
+	}
+
+	ctx.SetRawResponse(true)
+	ctx.SetHeader("Content-Type", "application/json")
+	ctx.Writer.Write(out)
+	return nil
 }
 
 func (h FileHandler) hasAccess(file *File, ctx *Context) bool {

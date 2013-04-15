@@ -2,6 +2,7 @@ package controller
 
 import (
 	. "github.com/netbrain/cloudfiler/app/repository/mem"
+	"reflect"
 	"testing"
 )
 
@@ -92,5 +93,69 @@ func TestEraseFile(t *testing.T) {
 	files, _ = fileController.Files()
 	if len(files) != 0 {
 		t.Fatal("File was not erased")
+	}
+}
+
+func TestAddTags(t *testing.T) {
+	initFileControllerTest()
+	user, _ := userController.Create("test@test.test", "testpasswd")
+	file, _ := fileController.Create("filename.txt", *user, new(FileDataMem))
+	file2, _ := fileController.Create("filename2.txt", *user, new(FileDataMem))
+
+	fileController.AddTags(file, "TestTag", "TestTag2")
+	fileController.AddTags(file2, "TestTag")
+
+	if len(file.Tags) != 2 {
+		t.Fatal("Expected 2 tags")
+	}
+
+	if len(fileController.tags) != 2 {
+		t.Fatal("Expected two tags in tagmap")
+	}
+
+	if !reflect.DeepEqual(
+		file.Tags,
+		[]string{"TestTag", "TestTag2"},
+	) {
+		t.Fatal("Expected TestTag")
+	}
+
+	if fileController.tags["TestTag"] != 2 {
+		t.Fatal("Expected 2 as tag count on TestTag")
+	}
+}
+
+func TestRemoveTags(t *testing.T) {
+	initFileControllerTest()
+	user, _ := userController.Create("test@test.test", "testpasswd")
+	file, _ := fileController.Create("filename.txt", *user, new(FileDataMem))
+	file2, _ := fileController.Create("filename2.txt", *user, new(FileDataMem))
+
+	fileController.AddTags(file, "TestTag", "TestTag2")
+	fileController.AddTags(file2, "TestTag")
+
+	fileController.RemoveTags(file, "TestTag2")
+
+	if len(file.Tags) != 1 {
+		t.Fatal("Expected 1 tag")
+	}
+
+	if len(fileController.tags) != 1 {
+		t.Fatal("Expected one tag in tagmap")
+	}
+
+	if !reflect.DeepEqual(
+		file.Tags,
+		[]string{"TestTag"},
+	) {
+		t.Fatal("Expected TestTag")
+	}
+
+	if fileController.tags["TestTag"] != 2 {
+		t.Fatal("Expected 2 as tag count on TestTag")
+	}
+
+	if _, ok := fileController.tags["TestTag2"]; ok {
+		t.Fatal("Did not expect the presence of TestTag2")
 	}
 }

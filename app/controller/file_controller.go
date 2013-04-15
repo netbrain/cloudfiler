@@ -9,12 +9,24 @@ import (
 
 type FileController struct {
 	fileRepository FileRepository
+	tags           map[string]int
 }
 
 func NewFileController(fileRepository FileRepository) FileController {
-	return FileController{
+	c := FileController{
 		fileRepository: fileRepository,
+		tags:           make(map[string]int),
 	}
+
+	files, _ := c.Files()
+	for _, file := range files {
+		for _, tag := range file.Tags {
+			c.addTagToMap(tag)
+		}
+	}
+
+	return c
+
 }
 
 func (c *FileController) Create(name string, owner User, data FileData) (*File, error) {
@@ -160,6 +172,7 @@ TAGS:
 			}
 		}
 		file.Tags = append(file.Tags, tag)
+		c.addTagToMap(tag)
 	}
 	return c.fileRepository.Store(file)
 }
@@ -171,6 +184,7 @@ func (c *FileController) RemoveTags(file *File, tags ...string) error {
 				l := len(file.Tags) - 1
 				file.Tags[i] = file.Tags[l]
 				file.Tags = file.Tags[:l]
+				c.removeTagFromMap(tag)
 				break
 			}
 		}
@@ -179,7 +193,7 @@ func (c *FileController) RemoveTags(file *File, tags ...string) error {
 }
 
 func (c *FileController) SetTags(file *File, tags ...string) error {
-	file.Tags = []string{}
+	c.RemoveTags(file, file.Tags...)
 	return c.AddTags(file, tags...)
 }
 
@@ -208,4 +222,26 @@ FILE:
 
 	}
 	return result, nil
+}
+
+func (c *FileController) Tags() map[string]int {
+	return c.tags
+}
+
+func (c *FileController) addTagToMap(tag string) {
+	if _, ok := c.tags[tag]; ok {
+		c.tags[tag] += 1
+	} else {
+		c.tags[tag] = 1
+	}
+}
+
+func (c *FileController) removeTagFromMap(tag string) {
+	if _, ok := c.tags[tag]; ok {
+		if c.tags[tag] == 1 {
+			delete(c.tags, tag)
+		} else {
+			c.tags[tag] -= 1
+		}
+	}
 }

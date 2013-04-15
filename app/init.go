@@ -98,6 +98,7 @@ func initRoutes() {
 	addRoute(handler.FileHandler.RemoveUsers, "/file/users/remove")
 	addRoute(handler.FileHandler.AddRoles, "/file/roles/add")
 	addRoute(handler.FileHandler.RemoveRoles, "/file/roles/remove")
+	addRoute(handler.FileHandler.Tags, "/file/tags")
 	addRoute(handler.FileHandler.AddTags, "/file/tags/add")
 	addRoute(handler.FileHandler.RemoveTags, "/file/tags/remove")
 	addRoute(handler.FileHandler.SetTags, "/file/tags/set")
