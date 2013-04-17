@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Create</title>
-</head>
+{{define "title"}}Create Role{{end}}
 
-<body>
-
-  {{if .ValidationErrors}}
-    {{.ValidationErrors}}
-  {{end}}
-
+{{define "body"}}
 	<h1>Create a new Role</h1>
     <form method="post" action="/role/create" autocomplete="off">
       <div>
@@ -20,6 +11,4 @@
       </div>
       <div><input type="submit" value="Create" /></div>
     </form>
-</body>
-
-</html>
+{{end}}

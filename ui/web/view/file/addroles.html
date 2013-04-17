@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Add role(s) to file</title>
-</head>
+{{define "title"}}Add role(s) to file{{end}}
 
-<body>
+{{define "body"}}
 	<h1>Add role(s) to file: {{.Data.File.Name}}</h1>
     <form method="post" action="/file/roles/add?id={{.Data.File.ID}}" autocomplete="off">
       <div>
@@ -17,6 +13,4 @@
       </div>
       <div><input type="submit" value="Add role(s)" /></div>
     </form>
-</body>
-
-</html>
+{{end}}

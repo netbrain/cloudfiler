@@ -1,31 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>User: {{ .Data.Email }}</title>
-</head>
+{{define "title"}}User: {{ .Data.Email }}{{end}}
 
-<body>
-
-	  {{if .ValidationErrors}}
-	    {{.ValidationErrors}}
-	  {{end}}
-
-	<h1>User: {{ .Data.Email }}</h1>
-    <table border="1">
-		<tr>
-			<th>ID</th>
-			<td>{{ .Data.ID }}</td>
-		</tr>
-		<tr>
-			<th>Email</th>
-			<td>{{ .Data.Email }}</td>
-		</tr>
-		<tr>
-			<th>Password</th>
-			{{/*<td>{{printf "%s" .Data.Password}}</td>*/}}
-			<td>-</td>
-		</tr>
-    </table>
-</body>
-
-</html>
+{{define "body"}}
+<h1>User: {{ .Data.Email }}</h1>
+<table border="1">
+	<tr>
+		<th>ID</th>
+		<td>{{ .Data.ID }}</td>
+	</tr>
+	<tr>
+		<th>Email</th>
+		<td>{{ .Data.Email }}</td>
+	</tr>
+	<tr>
+		<th>Password</th>
+		{{/*<td>{{printf "%s" .Data.Password}}</td>*/}}
+		<td>-</td>
+	</tr>
+</table>
+{{end}}

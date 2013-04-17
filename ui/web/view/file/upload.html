@@ -1,46 +1,40 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Upload</title>
-</head>
+{{define "title"}}Upload file{{end}}
 
-<body>
-	<h1>Upload</h1>
-	<form action="/file/upload" method="post" enctype="multipart/form-data">
-	    <table border="1">
-			<tr>
-				<td>File(s):</td>
-				<td>
-					<input type="file" name="file" multiple required/>
-					<ul id="fileList"></ul>
-				</td>
-			<tr>
-			<tr>
-				<td colspan="2">
-					<input type="submit" value="Upload" />
-				</td>
-			</tr>
-	    </table>
-	</form>
-	<script type="text/javascript">
-		(function(){
-			var fileInput = document.getElementsByName("file")[0];
-			fileInput.onchange = function(){
-				var fLen = fileInput.files.length;
-				var filesList = document.getElementById("fileList");
-				filesList.innerHTML = '';
-				if(fLen > 1){
-					for(var x = 0; x < fLen; x++){
-						var file = fileInput.files[x];
-						filesList.innerHTML += '<li>'+file.name+'</li>';
-					}
-					filesList.style.display = 'block';
-				}else{
-					filesList.style.display = 'none';
+{{define "body"}}
+<h1>Upload</h1>
+<form action="/file/upload" method="post" enctype="multipart/form-data">
+    <table border="1">
+		<tr>
+			<td>File(s):</td>
+			<td>
+				<input type="file" name="file" multiple required/>
+				<ul id="fileList"></ul>
+			</td>
+		<tr>
+		<tr>
+			<td colspan="2">
+				<input type="submit" value="Upload" />
+			</td>
+		</tr>
+    </table>
+</form>
+<script type="text/javascript">
+	(function(){
+		var fileInput = document.getElementsByName("file")[0];
+		fileInput.onchange = function(){
+			var fLen = fileInput.files.length;
+			var filesList = document.getElementById("fileList");
+			filesList.innerHTML = '';
+			if(fLen > 1){
+				for(var x = 0; x < fLen; x++){
+					var file = fileInput.files[x];
+					filesList.innerHTML += '<li>'+file.name+'</li>';
 				}
+				filesList.style.display = 'block';
+			}else{
+				filesList.style.display = 'none';
 			}
-		}());
-	</script>
-</body>
-
-</html>
+		}
+	}());
+</script>
+{{end}}

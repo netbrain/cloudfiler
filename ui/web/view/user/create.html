@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Create</title>
-</head>
+{{define "title"}}Create User{{end}}
 
-<body>
-
-  {{if .ValidationErrors}}
-    {{.ValidationErrors}}
-  {{end}}
-
+{{define "body"}}
 	<h1>Create a new User</h1>
     <form method="post" action="/user/create" autocomplete="off">
       <div>
@@ -28,6 +19,4 @@
       </div>
       <div><input type="submit" value="Create" /></div>
     </form>
-</body>
-
-</html>
+{{end}}

@@ -1,37 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>List of Files</title>
-</head>
+{{define "title"}}List of Files{{end}}
 
-<body>
-	<ul style="float:left;"> 
-		<li><strong>Menu</strong></li>
-		<li><a href="/file/list">/file/list</a></li>
-		<li><a href="/file/search">/file/search</a></li>
-		<li><a href="/user/list">/user/list</a></li>
-		<li><a href="/role/list">/role/list</a></li>
-		<li><a href="/auth/logout">/auth/logout</a></li>
-	</ul>
-	<h1>List of Files</h1>	
-    <table border="1">
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Owner</th>
-				<th><a href="/file/upload">Upload file</a></th>
-			</tr>
-		</thead>
-        {{ range .Data }}
-		<tbody>
-        	<tr>
-        	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
-        	    <td>{{ .Owner }}</td>
-				<td><a href="/file/delete?id={{ .ID }}">Remove</a></td> 
-        	<tr>
-		</tbody>
-        {{ end }}
-    </table>
-</body>
-
-</html>
+{{define "body"}}
+<h1>List of Files</h1>	
+<table border="1">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Owner</th>
+			<th><a href="/file/upload">Upload file</a></th>
+		</tr>
+	</thead>
+    {{ range .Data }}
+	<tbody>
+    	<tr>
+    	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
+    	    <td>{{ .Owner }}</td>
+			<td><a href="/file/delete?id={{ .ID }}">Remove</a></td> 
+    	<tr>
+	</tbody>
+    {{ end }}
+</table>
+{{end}}

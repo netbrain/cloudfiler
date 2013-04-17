@@ -1,40 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Role: {{ .Data.Name }}</title>
-</head>
+{{define "title"}}Role: {{ .Data.Name }}{{end}}
 
-<body>
-
-	  {{if .ValidationErrors}}
-	    {{.ValidationErrors}}
-	  {{end}}
-
-	<h1>Role: {{ .Data.Name }}</h1>
-    <table border="1">
-		<tr>
-			<th>ID</th>
-			<td>{{ .Data.ID }}</td>
-		</tr>
-		<tr>
-			<th>Name</th>
-			<td>{{ .Data.Name }}</td>
-		</tr>
-		<tr>
-			<th colspan="2">Users</th>
-		</tr>
-		<tr>
-			<td colspan="2">				
-				{{$roleId := .Data.ID}}
-				<a href="/role/users/add?id={{$roleId}}">Add user</a>
-				<ul>
-					{{ range .Data.Users }}
-						<li><a href="/user/retrieve?id={{.ID}}">{{ .Email }}</a> - <a href="/role/users/remove?id={{$roleId}}&uid={{ .ID }}">Remove</a></li>
-					{{ end }}
-				</ul>
-			</td>
-		</tr>		
-    </table>
-</body>
-
-</html>
+{{define "body"}}
+<h1>Role: {{ .Data.Name }}</h1>
+<table border="1">
+	<tr>
+		<th>ID</th>
+		<td>{{ .Data.ID }}</td>
+	</tr>
+	<tr>
+		<th>Name</th>
+		<td>{{ .Data.Name }}</td>
+	</tr>
+	<tr>
+		<th colspan="2">Users</th>
+	</tr>
+	<tr>
+		<td colspan="2">				
+			{{$roleId := .Data.ID}}
+			<a href="/role/users/add?id={{$roleId}}">Add user</a>
+			<ul>
+				{{ range .Data.Users }}
+					<li><a href="/user/retrieve?id={{.ID}}">{{ .Email }}</a> - <a href="/role/users/remove?id={{$roleId}}&uid={{ .ID }}">Remove</a></li>
+				{{ end }}
+			</ul>
+		</td>
+	</tr>		
+</table>
+{{end}}

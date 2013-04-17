@@ -1,24 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Login</title>
-</head>
+{{define "title"}}Login{{end}}
 
-<body>
-	<h1>Login</h1>
-    <form method="post" action="/auth/login" autocomplete="off">
-      <div>
-        <div>
-          <span>Username:</span>
-          <span><input type="email" name="username" autofocus="autofocus" required="required" /></span>
-        </div>
-        <div>
-          <span>Password:</span>
-          <span><input type="password" name="password" required="required"/></span>
-        </div>     
-      </div>
-      <div><input type="submit" value="Login" /></div>
-    </form>
-</body>
-
-</html>
+{{define "body"}}
+<h1>Login</h1>
+<form method="post" action="/auth/login" autocomplete="off">
+  <div>
+    <div>
+      <span>Username:</span>
+      <span><input type="email" name="username" autofocus="autofocus" required="required" /></span>
+    </div>
+    <div>
+      <span>Password:</span>
+      <span><input type="password" name="password" required="required"/></span>
+    </div>     
+  </div>
+  <div><input type="submit" value="Login" /></div>
+</form>
+{{end}}

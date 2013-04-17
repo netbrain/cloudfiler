@@ -1,42 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Search results for {{.Params "q" }}</title>
-</head>
+{{define "title"}}Search results for {{.Params "q" }}{{end}}
 
-<body>
-	<h1>Search results for {{.Params "q" }}</h1>
-	<form action="/file/search">
-		<input type="search" placeholder="Search" name="query" value="{{.Params "q" }}"/>
-	</form>	
-    <table border="1">
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Tags</th>
-				<th>Owner</th>
-			</tr>
-		</thead>
-        {{ range .Data }}
-		<tbody>
-        	<tr>
-        	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
-				<td>
-					{{if .Tags}}
-						<ul>
-							{{range .Tags}}
-								<li>{{.}}</li>
-							{{end}}
-						</ul>
-					{{else}}
-						Not tagged
-					{{end}}
-				</td>
-        	    <td>{{ .Owner }}</td>
-        	</tr>
-		</tbody>
-        {{ end }}
-    </table>
-</body>
-
-</html>
+{{define "body"}}
+<h1>Search results for {{.Params "q" }}</h1>
+<form action="/file/search">
+	<input type="search" placeholder="Search" name="query" value="{{.Params "q" }}"/>
+</form>	
+<table border="1">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Tags</th>
+			<th>Owner</th>
+		</tr>
+	</thead>
+    {{ range .Data }}
+	<tbody>
+    	<tr>
+    	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
+			<td>
+				{{if .Tags}}
+					<ul>
+						{{range .Tags}}
+							<li>{{.}}</li>
+						{{end}}
+					</ul>
+				{{else}}
+					Not tagged
+				{{end}}
+			</td>
+    	    <td>{{ .Owner }}</td>
+    	</tr>
+	</tbody>
+    {{ end }}
+</table>
+{{end}}

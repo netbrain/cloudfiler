@@ -1,0 +1,37 @@
+{{define "base"}}<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{template "title" .}}</title>
+		<script type="text/javascript" src="/static/js/jquery/core/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery/ui/jquery-ui-1.10.2.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/static/css/cloudfiler.css" />		
+		<link rel="stylesheet" type="text/css" href="/static/css/jquery/ui/jquery-ui-1.10.2.css" />
+	</head>
+	<body>		
+		{{if .ValidationErrors}}
+			<div id="validationErrors">
+				{{.ValidationErrors}}
+			</div>
+		{{end}}
+		</div>
+		<div id="header">
+			<a href="/"><img src="/static/images/logo.png" /></a>			
+		</div>
+		<div id="navigation">
+			<ul class="menu">
+				<li><a href="/">Main</a></li>
+				<li><a href="/file/list">Files</a></li>
+				<li><a href="/file/upload">Upload</a></li>
+				<li><a href="/user/list">Users</a></li>
+				<li><a href="/role/list">Roles</a></li>
+				<li><a href="/auth/logout">Logout</a></li>
+			</ul>
+		</div>
+		<div id="content">
+			{{template "body" .}}
+		</div>
+		<div id="footer">
+		</div>
+	</body>
+</html>
+{{end}}

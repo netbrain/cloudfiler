@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Set tag(s) on file</title>
-</head>
-
-<body>
+{{define "title"}}Set tag(s) on file{{end}}
+{{define "body"}}
 	<h1>Set tag(s) on file: {{.Data.Name}}</h1>
     <form id="addTagForm" method="post" action="/file/tags/set?id={{.Data.ID}}" autocomplete="off">
       <p>Type a space separated list of tags:</p>
@@ -53,6 +48,4 @@
           createTagList();
       })()
     </script>
-</body>
-
-</html>
+{{end}}
