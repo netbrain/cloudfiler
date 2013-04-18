@@ -3,7 +3,7 @@
 {{define "body"}}
     {{$fileId := .Data.ID}}
 	<h1>File: {{.Data.Name}}</h1>
-    <table border="1">
+    <table>
 		<tbody>
         	<tr>
         		<td>Id</td>
@@ -26,12 +26,40 @@
             </tr>
         	<tr>
         		<td colspan="2">
-                    <a href="/file/tags/add?id={{$fileId}}">Set tags</a>                       
-        			<ul>
-        				{{range .Data.Tags}}
-        				<li>{{.}} - <a href="/file/tags/remove?id={{$fileId}}&tag={{.}}">Remove</a></li></li>
-        				{{end}}
-        			</ul>
+                 <ul id="tags">
+                  {{range .Data.Tags }}
+                    <li>{{.}}</li>
+                  {{end}}
+                </ul>
+                <script type="text/javascript">
+                  $(document).ready(function() {
+                      $.getJSON('/file/tags',function(data){
+                          var availableTags = [];
+
+                          for(var tag in data){
+                            availableTags.push(tag);
+                          }
+
+                          $("#tags").tagit({
+                            availableTags: availableTags,
+                            beforeTagRemoved: function(e,ui){
+                                $.post('/file/tags/remove',{
+                                    id: {{.Data.ID}},
+                                    tag: ui.tagLabel
+                                });
+                            },
+                            beforeTagAdded:function(e,ui){
+                                if(!ui.duringInitialization){
+                                    $.post('/file/tags/add',{
+                                        id: {{.Data.ID}},
+                                        tag: ui.tagLabel
+                                    });
+                                }
+                            }
+                          });
+                      }); 
+                  });
+                </script>
         		</td>
         	</tr>
             <tr>

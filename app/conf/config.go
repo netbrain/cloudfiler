@@ -11,19 +11,21 @@ import (
 )
 
 var Config *config
+var userHome, configHome, configFile string
 
 type config struct {
-	ConfigFilePath               string `json:"-"`
-	ApplicationHome              string `json:"applicationHome"`
-	ServerAddr                   string `json:"serverAddr"`
-	CookieStoreAuthenticationKey []byte `json:"cookieStoreAuthenticationKey"`
-	CookieStoreEncryptionKey     []byte `json:"cookieStoreEncryptionKey"`
+	ConfigFilePath               string            `json:"-"`
+	ApplicationHome              string            `json:"applicationHome"`
+	ServerAddr                   string            `json:"serverAddr"`
+	CookieStoreAuthenticationKey []byte            `json:"cookieStoreAuthenticationKey"`
+	CookieStoreEncryptionKey     []byte            `json:"cookieStoreEncryptionKey"`
+	Repository                   map[string]string `json:"repository"`
 }
 
 func init() {
-	userHome := os.Getenv("HOME")
-	configHome := userHome + "/.cloudfiler"
-	configFile := configHome + "/config"
+	userHome = os.Getenv("HOME")
+	configHome = userHome + "/.cloudfiler"
+	configFile = configHome + "/config"
 
 	wd, _ := os.Getwd()
 	Config = &config{
@@ -32,6 +34,7 @@ func init() {
 		ServerAddr:                   "127.0.0.1:8080",
 		CookieStoreAuthenticationKey: generateRandomKey(32),
 		CookieStoreEncryptionKey:     generateRandomKey(32),
+		Repository:                   make(map[string]string),
 	}
 
 	os.MkdirAll(configHome, 0755)
@@ -42,8 +45,8 @@ func init() {
 		if file, err = os.Create(configFile); err != nil {
 			panic(err)
 		}
-		defer file.Close()
-		file.Write(getMarshalledConfig())
+		file.Close()
+		SaveConfig()
 	} else {
 		defer file.Close()
 		log.Println("Loading configuration file")
@@ -65,6 +68,15 @@ func unmarshalToConfig(file *os.File) {
 	}
 
 	json.Unmarshal(buffer.Bytes(), Config)
+}
+
+func SaveConfig() {
+	file, err := os.OpenFile(configFile, os.O_RDWR, 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	file.Write(getMarshalledConfig())
 }
 
 func printConfigToStdout() {

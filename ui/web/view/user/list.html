@@ -2,19 +2,19 @@
 
 {{define "body"}}
 <h1>List of Users</h1>
-<table border="1">
+<table>
 	<thead>
 		<tr>
 			<th>Email</th>
-			<th colspan="2"><a href="/user/create">Create new User</a></th>
+			<th colspan="2" class="action"><a href="/user/create">Create new User</a></th>
 		</tr>
 	</thead>
     {{ range .Data }}
 	<tbody>
     	<tr>
     	    <td><a href="/user/retrieve?id={{ .ID }}">{{ .Email }}</a></td>
-			<td><a href="/user/delete?id={{ .ID }}">Remove</a></td> 
-			<td><a href="/user/update?id={{ .ID }}">Edit</a></td>
+			<td class="action"><a href="/user/delete?id={{ .ID }}">Remove</a></td> 
+			<td class="action"><a href="/user/update?id={{ .ID }}">Edit</a></td>
     	<tr>
 	</tbody>
     {{ end }}

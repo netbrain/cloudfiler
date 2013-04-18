@@ -1,23 +1,34 @@
 {{define "title"}}List of Files{{end}}
 
 {{define "body"}}
-<h1>List of Files</h1>	
-<table border="1">
+<h1>List of Files</h1>
+<table>
 	<thead>
+		<tr>
+			<td colspan="3">
+				<form action="/file/search#"> {{/*TODO remove filelist by fixing other issue in fvgo*/}}
+					<input type="search" placeholder="Search" name="query" style="float:right;"/></td>
+				</form>
+			</td>
+		</tr>
 		<tr>
 			<th>Name</th>
 			<th>Owner</th>
-			<th><a href="/file/upload">Upload file</a></th>
+			<th></th>
 		</tr>
 	</thead>
-    {{ range .Data }}
 	<tbody>
+    {{ range .Data }}
     	<tr>
     	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
     	    <td>{{ .Owner }}</td>
 			<td><a href="/file/delete?id={{ .ID }}">Remove</a></td> 
+    	</tr>
+    {{else}}
     	<tr>
-	</tbody>
+    		<td colspan="3" style="text-align:center;">No files</td>
+    	</tr>
     {{ end }}
+	</tbody>
 </table>
 {{end}}

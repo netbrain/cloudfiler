@@ -1,14 +1,14 @@
 {{define "title"}}Create Role{{end}}
 
 {{define "body"}}
-	<h1>Create a new Role</h1>
-    <form method="post" action="/role/create" autocomplete="off">
+<h1>Create a new Role</h1>
+  <form method="post" action="/role/create" autocomplete="off">
+    <div>
       <div>
-        <div>
-          <span>Name:</span>
-          <span><input type="name" name="name" autofocus="autofocus" required="required" /></span>
-        </div>      
-      </div>
-      <div><input type="submit" value="Create" /></div>
-    </form>
+        <span>Name:</span>
+        <span><input type="name" name="name" autofocus="autofocus" required="required" /></span>
+      </div>      
+    </div>
+    <div><input type="submit" value="Create" /></div>
+  </form>
 {{end}}

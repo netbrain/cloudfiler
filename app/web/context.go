@@ -96,3 +96,7 @@ func (ctx *Context) HasValidationErrors() bool {
 func (ctx *Context) SetRawResponse(b bool) {
 	ctx.rawResponse = b
 }
+
+func (ctx *Context) IsAjaxRequest() bool {
+	return ctx.GetRequestHeader("X-Requested-With") == "XMLHttpRequest"
+}

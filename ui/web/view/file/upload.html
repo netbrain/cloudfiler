@@ -1,23 +1,14 @@
 {{define "title"}}Upload file{{end}}
 
 {{define "body"}}
-<h1>Upload</h1>
-<form action="/file/upload" method="post" enctype="multipart/form-data">
-    <table border="1">
-		<tr>
-			<td>File(s):</td>
-			<td>
-				<input type="file" name="file" multiple required/>
-				<ul id="fileList"></ul>
-			</td>
-		<tr>
-		<tr>
-			<td colspan="2">
-				<input type="submit" value="Upload" />
-			</td>
-		</tr>
-    </table>
-</form>
+<fieldset>
+	<legend>Upload file</legend>
+	<form action="/file/upload" method="post" enctype="multipart/form-data">
+		File(s): <input type="file" name="file" multiple required/>
+		<ul id="fileList"></ul>
+		<input type="submit" value="Upload" />			
+	</form>
+</fieldset>
 <script type="text/javascript">
 	(function(){
 		var fileInput = document.getElementsByName("file")[0];

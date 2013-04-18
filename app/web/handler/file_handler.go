@@ -312,17 +312,19 @@ func (h FileHandler) AddTags(ctx *Context) interface{} {
 		return Error(http.StatusNotFound)
 	}
 
-	if h.hasAccess(file, ctx) {
-		if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
-			h.fileController.AddTags(file, data.Tag...)
-			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
-			return nil
-		}
-
-		return file
+	if !h.hasAccess(file, ctx) {
+		return Error(http.StatusForbidden)
 	}
 
-	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
+		h.fileController.AddTags(file, data.Tag...)
+
+		if !ctx.IsAjaxRequest() {
+			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+		}
+	}
+
+	ctx.SetRawResponse(true)
 	return nil
 }
 
@@ -340,17 +342,19 @@ func (h FileHandler) SetTags(ctx *Context) interface{} {
 		return Error(http.StatusNotFound)
 	}
 
-	if h.hasAccess(file, ctx) {
-		if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
-			h.fileController.SetTags(file, data.Tag...)
-			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
-			return nil
-		}
-
-		return file
+	if !h.hasAccess(file, ctx) {
+		return Error(http.StatusForbidden)
 	}
 
-	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
+		h.fileController.SetTags(file, data.Tag...)
+
+		if !ctx.IsAjaxRequest() {
+			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+		}
+	}
+
+	ctx.SetRawResponse(true)
 	return nil
 }
 
@@ -368,11 +372,12 @@ func (h FileHandler) RemoveTags(ctx *Context) interface{} {
 		return Error(http.StatusNotFound)
 	}
 
-	if h.hasAccess(file, ctx) {
-		h.fileController.RemoveTags(file, data.Tag...)
+	if !h.hasAccess(file, ctx) {
+		return Error(http.StatusForbidden)
 	}
 
-	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	h.fileController.RemoveTags(file, data.Tag...)
+	ctx.SetRawResponse(true)
 	return nil
 }
 

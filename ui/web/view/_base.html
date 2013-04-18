@@ -4,8 +4,10 @@
 		<title>{{template "title" .}}</title>
 		<script type="text/javascript" src="/static/js/jquery/core/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="/static/js/jquery/ui/jquery-ui-1.10.2.min.js"></script>
+		<script type="text/javascript" src="/static/js/tag-it/tag-it.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="/static/css/cloudfiler.css" />		
 		<link rel="stylesheet" type="text/css" href="/static/css/jquery/ui/jquery-ui-1.10.2.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/tag-it/jquery.tagit.css" />		
 	</head>
 	<body>		
 		{{if .ValidationErrors}}
@@ -31,6 +33,7 @@
 			{{template "body" .}}
 		</div>
 		<div id="footer">
+			<a href="http://github.com/netbrain/cloudfiler">Powered by CloudFiler</a>
 		</div>
 	</body>
 </html>
