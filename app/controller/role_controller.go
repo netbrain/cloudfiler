@@ -50,6 +50,15 @@ func (c RoleController) Create(name string) (*Role, error) {
 }
 
 func (c RoleController) Delete(id int) error {
+	role, err := c.Role(id)
+	if err != nil {
+		return err
+	}
+
+	if c.isAdminRole(role) {
+		return fmt.Errorf("Can not delete admin role")
+	}
+
 	return c.roleRepository.Erase(id)
 }
 
@@ -57,6 +66,9 @@ func (c RoleController) Update(id int, name string) error {
 	name = c.normalizeName(name)
 
 	if role, err := c.roleRepository.FindById(id); role != nil {
+		if c.isAdminRole(role) {
+			return fmt.Errorf("Can not edit admin role")
+		}
 		role.Name = name
 		return c.roleRepository.Store(role)
 	} else if err != nil {
@@ -90,4 +102,8 @@ func (c RoleController) normalizeName(name string) string {
 	name = strings.ToLower(name)
 	name = strings.Title(name)
 	return name
+}
+
+func (c RoleController) isAdminRole(role *Role) bool {
+	return role.Name == "Admin"
 }

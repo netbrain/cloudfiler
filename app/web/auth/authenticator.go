@@ -46,7 +46,15 @@ func (a *Authenticator) getSession(r *http.Request) (*sessions.Session, error) {
 func (a *Authenticator) userHasRole(user *User, roleName string) bool {
 	hasRole := false
 	if user != nil {
-		role, _ := a.roleRepository.FindByName(roleName)
+		role, err := a.roleRepository.FindByName(roleName)
+		if err != nil {
+			panic(err)
+		}
+
+		if role == nil {
+			return false
+		}
+
 		if len(role.Users) > 0 {
 			for _, otherUser := range role.Users {
 				if user.Equals(otherUser) {
