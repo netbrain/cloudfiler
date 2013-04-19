@@ -94,5 +94,12 @@ func getPath(folder string, id interface{}) string {
 	}
 
 	return filepath.Join(parent, file)
+}
 
+func getTempFile() *os.File {
+	file, err := ioutil.TempFile(getPath(storagePath, ""), "")
+	if err != nil {
+		panic(err)
+	}
+	return file
 }

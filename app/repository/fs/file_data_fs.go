@@ -1,7 +1,6 @@
 package fs
 
 import (
-	"io/ioutil"
 	"os"
 )
 
@@ -10,13 +9,8 @@ type FileDataFs struct {
 }
 
 func NewFileData() *FileDataFs {
-	tmpFile, err := ioutil.TempFile(storageTmpPath, "filedatafs")
-	if err != nil {
-		panic(err)
-	}
-
 	file := &FileDataFs{
-		file: tmpFile,
+		file: getTempFile(),
 	}
 
 	return file
