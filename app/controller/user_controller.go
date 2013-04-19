@@ -52,10 +52,6 @@ func (c UserController) Create(email, password string) (*User, error) {
 	return u, err
 }
 
-func (c UserController) Delete(id int) error {
-	return c.UserRepository.Erase(id)
-}
-
 func (c UserController) Update(id int, email, password string) error {
 	if err := validatePassword(password); err != nil {
 		return err

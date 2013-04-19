@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
+	//"time"
 )
 
 const (
@@ -21,14 +21,14 @@ var FormValidator = fvgo.NewFormValidator()
 var Views = make(map[string]*template.Template)
 
 func init() {
-	//loadTemplates()
-	go func() {
+	loadTemplates()
+	/*go func() {
 		for {
 			FormValidator = fvgo.NewFormValidator()
 			loadTemplates()
 			time.Sleep(5000 * time.Millisecond)
 		}
-	}()
+	}()*/
 }
 
 /*

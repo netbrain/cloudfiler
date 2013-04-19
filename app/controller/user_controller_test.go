@@ -63,20 +63,6 @@ func TestCreateUserWithInvalidPassword(t *testing.T) {
 	}
 }
 
-func TestDeleteUser(t *testing.T) {
-	initUserControllerTest()
-
-	email := "delete@user.test"
-	userController.Create(email, "password")
-	user, _ := userRepo.FindByEmail(email)
-	userController.Delete(user.ID)
-
-	all, _ := userRepo.All()
-	if l := len(all); l != 0 {
-		t.Fatalf("No user should exist, but found %v (%#v)", l, all)
-	}
-}
-
 func TestCreateTwoUsersWithIdenticalEmail(t *testing.T) {
 	initUserControllerTest()
 

@@ -3,7 +3,6 @@ package fs
 import (
 	. "github.com/netbrain/cloudfiler/app/entity"
 	"io/ioutil"
-	"os"
 )
 
 type UserRepositoryFs struct{}
@@ -24,11 +23,6 @@ func (r UserRepositoryFs) Store(user *User) error {
 	}
 
 	return nil
-}
-
-func (r UserRepositoryFs) Erase(id int) error {
-	path := r.getPath(id)
-	return os.Remove(path)
 }
 
 func (r UserRepositoryFs) All() ([]User, error) {

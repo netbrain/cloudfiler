@@ -5,6 +5,7 @@ import (
 	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/repository"
 	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -74,11 +75,6 @@ func (r FileRepositoryFs) Store(file *File) error {
 		return err
 	}
 
-	fileData.file, err = os.OpenFile(newFileDataPath, os.O_RDWR, 0600)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -120,6 +116,7 @@ func (r FileRepositoryFs) FindById(id int) (*File, error) {
 	unserialize(b, filefs)
 
 	osfile, err := os.Open(getPath("filedata", id))
+	defer osfile.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +151,12 @@ func (r FileRepositoryFs) FindById(id int) (*File, error) {
 	for _, roleId := range filefs.Roles {
 		role, err := r.roleRepository.FindById(roleId)
 		if err != nil {
-			return nil, err
+			if os.IsNotExist(err) {
+				log.Printf("Could not find Role entity with id: %v i guess it must have been deleted", roleId)
+				continue
+			} else {
+				return nil, err
+			}
 		}
 
 		file.Roles = append(file.Roles, *role)

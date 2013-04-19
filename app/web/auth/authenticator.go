@@ -5,6 +5,7 @@ import (
 	. "github.com/netbrain/cloudfiler/app/conf"
 	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/repository"
+	. "github.com/netbrain/cloudfiler/app/web/session"
 	"net/http"
 )
 
@@ -13,6 +14,7 @@ const (
 	AUTH_ID          = "authId"
 )
 
+//TODO use the session pkg instead of raw gorilla sessions
 type Authenticator struct {
 	sessionStore       *sessions.CookieStore
 	userRepository     UserRepository
@@ -138,8 +140,9 @@ func (a Authenticator) Handle(w http.ResponseWriter, r *http.Request) bool {
 	if a.IsAuthorized(r) {
 		return true
 	}
+	session := NewSession(w, r)
+	session.AddFlash("Login with an account that has sufficient privileges to access this resource.")
 
-	//TODO add flash message
 	http.Redirect(w, r, a.loginUrl, http.StatusTemporaryRedirect)
 	return false
 }

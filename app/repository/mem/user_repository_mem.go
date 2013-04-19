@@ -22,11 +22,6 @@ func (r UserRepositoryMem) Store(user *User) error {
 	return nil
 }
 
-func (r UserRepositoryMem) Erase(id int) error {
-	delete(r.users, id)
-	return nil
-}
-
 func (r UserRepositoryMem) All() ([]User, error) {
 	users := []User{}
 	for _, user := range r.users {

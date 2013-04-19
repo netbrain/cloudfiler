@@ -63,6 +63,37 @@ th.action {
 	text-align: center;
 }
 
+#flash {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	text-align: center;	
+}
+
+#flash ul {
+	margin: 3px;
+	padding: 0px;
+	display: inline-block;
+}
+
+#flash li {
+	line-height: 32px;
+	padding: 10px;
+	padding-left: 32px;
+	background-color: #BDE5F8;;
+	color: #00529B;;
+	border: 1px solid #00529B;;
+	opacity: 0.75;
+	list-style-position:inside;
+	list-style-type: none;
+	background-image: url('/static/images/important.png');
+	background-position: 5px center;
+	background-repeat: no-repeat;
+	margin-bottom: 2px;
+	cursor: pointer;
+}
+
 #header {
 	background-color: #333;
 }

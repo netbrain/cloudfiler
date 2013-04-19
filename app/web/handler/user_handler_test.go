@@ -335,37 +335,3 @@ func TestUpdateUserWithMismatchingPasswordEntries(t *testing.T) {
 		t.Fatal("Expected a general error")
 	}
 }
-
-func TestDeleteNonExistingUser(t *testing.T) {
-	initUserHandlerTest()
-	ctx, _ := CreateReqContext("GET", "/user/delete?id=123", nil)
-
-	result := userHandler.Delete(ctx)
-
-	if result != nil {
-		t.Fatal("expected nil")
-	}
-
-	if !ctx.IsRedirected() {
-		t.Fatal("Expected redirection")
-	}
-
-}
-
-func TestDeleteUser(t *testing.T) {
-	initUserHandlerTest()
-	userController.Create("test@test.test", "password")
-	user, _ := userRepo.FindByEmail("test@test.test")
-	id := strconv.Itoa(user.ID)
-	ctx, _ := CreateReqContext("GET", "/user/delete?id="+id, nil)
-
-	result := userHandler.Delete(ctx)
-
-	if result != nil {
-		t.Fatal("expected nil")
-	}
-
-	if !ctx.IsRedirected() {
-		t.Fatal("Expected redirection")
-	}
-}

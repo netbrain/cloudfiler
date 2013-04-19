@@ -38,18 +38,6 @@ func TestUserStoreGeneratesRandomID(t *testing.T) {
 	}
 }
 
-func TestUserErase(t *testing.T) {
-	initUserTest()
-	user := getUser()
-	userRepo.Store(user)
-	if err := userRepo.Erase(user.ID); err != nil {
-		t.Fatalf("Error occured trying to erase user, %v", err)
-	}
-	if users, _ := userRepo.All(); len(users) != 0 {
-		t.Fatal("User count should be 0")
-	}
-}
-
 func TestUserGetAll(t *testing.T) {
 	initUserTest()
 	if users, _ := userRepo.All(); len(users) != 0 {

@@ -47,17 +47,6 @@ func TestStoreUser(t *testing.T) {
 	}
 }
 
-func TestEraseUser(t *testing.T) {
-	defer cleanup()
-	initUserRepositoryFsTest()
-	user := createUser(1, "test@test.test")
-
-	err := userRepo.Erase(user.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
 func TestFindUserById(t *testing.T) {
 	defer cleanup()
 	initUserRepositoryFsTest()

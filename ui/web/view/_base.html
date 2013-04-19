@@ -9,7 +9,17 @@
 		<link rel="stylesheet" type="text/css" href="/static/css/jquery/ui/jquery-ui-1.10.2.css" />
 		<link rel="stylesheet" type="text/css" href="/static/css/tag-it/jquery.tagit.css" />		
 	</head>
-	<body>		
+	<body>
+		{{$flash := .Flash}}
+		{{if $flash}}
+			<div id="flash">
+				<ul>
+				{{range $flash}}
+					<li>{{.}}</li>
+				{{end}}
+				</ul>
+			</div>			
+		{{end}}
 		{{if .ValidationErrors}}
 			<div id="validationErrors">
 				{{.ValidationErrors}}
@@ -35,6 +45,13 @@
 		<div id="footer">
 			<a href="http://github.com/netbrain/cloudfiler">Powered by CloudFiler</a>
 		</div>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$('#flash li').click(function(){
+					$(this).fadeOut();
+				})
+			});
+		</script>
 	</body>
 </html>
 {{end}}

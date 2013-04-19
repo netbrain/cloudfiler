@@ -2,6 +2,7 @@ package web
 
 import (
 	"github.com/netbrain/cloudfiler/app/web/fvgo"
+	"github.com/netbrain/cloudfiler/app/web/session"
 	"net/http"
 )
 
@@ -13,6 +14,7 @@ type Context struct {
 	redirect         interface{}
 	rawResponse      bool
 	formValidator    *fvgo.FormValidator
+	session          *session.Session
 }
 
 func NewContext(w http.ResponseWriter, r *http.Request) *Context {
@@ -21,6 +23,7 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 		Writer:        w,
 		formValidator: FormValidator,
 		rawResponse:   false,
+		session:       session.NewSession(w, r),
 	}
 	_, ctx.ValidationErrors = ctx.formValidator.ValidateRequestData(ctx.Request)
 	return ctx
@@ -99,4 +102,19 @@ func (ctx *Context) SetRawResponse(b bool) {
 
 func (ctx *Context) IsAjaxRequest() bool {
 	return ctx.GetRequestHeader("X-Requested-With") == "XMLHttpRequest"
+}
+
+func (ctx *Context) Session() *session.Session {
+	return ctx.session
+}
+
+func (ctx *Context) Flash() interface{} {
+	if flashes := ctx.session.Flash(); len(flashes) > 0 {
+		return flashes
+	}
+	return nil
+}
+
+func (ctx *Context) AddFlash(v interface{}) {
+	ctx.session.AddFlash(v)
 }

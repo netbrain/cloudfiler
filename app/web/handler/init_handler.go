@@ -43,7 +43,7 @@ func (i InitHandler) Init(ctx *Context) interface{} {
 				return Error(err)
 			}
 
-			//TODO add flash message
+			ctx.AddFlash("Application initialized! please login to continue.")
 			ctx.Redirect(AuthHandler.Login)
 		}
 

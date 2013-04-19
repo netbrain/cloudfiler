@@ -46,8 +46,7 @@ func (h RoleHandler) Create(ctx *Context) interface{} {
 		ctx.InjectData(data)
 
 		if role, _ := ctrl.RoleByName(data.Name); role != nil {
-			//TODO
-			//ctx.AddFlashMessage("Role already registered")
+			ctx.AddFlash("Role already registered")
 		}
 		if _, err := ctrl.Create(data.Name); err != nil {
 			return Error(err)
@@ -174,7 +173,7 @@ func (h RoleHandler) RemoveUser(ctx *Context) interface{} {
 			return Error(err)
 		}
 	} else {
-		//TODO add flash message
+		ctx.AddFlash("Cannot remove the only Admin user in the application")
 	}
 
 	ctx.Redirect(ctx.GetRequestHeader("Referer"))

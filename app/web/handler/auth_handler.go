@@ -30,10 +30,6 @@ func (h AuthHandler) Login(ctx *Context) interface{} {
 		"Cache-Control",
 		"no-cache, max-age=0, must-revalidate, no-store",
 	)
-	// if h.authenticator.IsAuthorized(ctx.Request) {
-	// 	redirectToLandingPage(ctx)
-	// 	return nil
-	// }
 
 	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
 		data := &h.data
@@ -41,7 +37,7 @@ func (h AuthHandler) Login(ctx *Context) interface{} {
 		if ok := h.authenticator.Authorize(data.Username, data.Password, ctx.Writer, ctx.Request); ok {
 			redirectToLandingPage(ctx)
 		} else {
-			//TODO add flash message
+			ctx.AddFlash("Incorrect authorization details.")
 		}
 	}
 	return nil

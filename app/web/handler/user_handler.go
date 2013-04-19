@@ -57,8 +57,7 @@ func (handler UserHandler) Create(ctx *Context) interface{} {
 			ctx.AddValidationError(err)
 		} else {
 			if user, _ := ctrl.UserByEmail(data.Email); user != nil {
-				//TODO
-				//ctx.AddFlashMessage("Email already registered")
+				ctx.AddFlash("Email already registered")
 			}
 			if _, err := ctrl.Create(data.Email, data.Password); err != nil {
 				return Error(err)
@@ -103,16 +102,4 @@ func (handler UserHandler) Update(ctx *Context) interface{} {
 	}
 	return handler.Retrieve(ctx)
 
-}
-
-func (handler UserHandler) Delete(ctx *Context) interface{} {
-	data := &handler.data
-	ctx.InjectData(data)
-
-	if err := handler.controller.Delete(data.Id); err != nil {
-		return Error(err)
-	}
-
-	ctx.Redirect(UserHandler.List)
-	return nil
 }
