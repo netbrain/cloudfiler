@@ -9,13 +9,20 @@ import (
 var roleRepo RoleRepositoryFs
 
 func initRoleRepositoryFsTest() {
-	roleRepo = NewRoleRepository()
+	userRepo = NewUserRepository()
+	roleRepo = NewRoleRepository(userRepo)
 }
 
 func createRole(id int, name string) *Role {
+	user := &User{
+		ID:    1,
+		Email: "test@test.test",
+	}
+	userRepo.Store(user)
 	role := &Role{
-		ID:   id,
-		Name: name,
+		ID:    id,
+		Name:  name,
+		Users: []User{*user},
 	}
 
 	err := roleRepo.Store(role)
@@ -72,6 +79,10 @@ func TestFindRoleById(t *testing.T) {
 	if !(role.ID == 1 && role.Name == "Test") {
 		t.Logf("%#v", role)
 		t.Fatal("Inconsistent data")
+	}
+
+	if len(role.Users) != 1 {
+		t.Fatal("Expected 1 user")
 	}
 }
 

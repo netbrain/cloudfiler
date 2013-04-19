@@ -2,12 +2,15 @@ package fs
 
 import (
 	. "github.com/netbrain/cloudfiler/app/entity"
+	. "github.com/netbrain/cloudfiler/app/repository"
 	"io/ioutil"
 	"os"
 	"strconv"
 )
 
-type RoleRepositoryFs struct{}
+type RoleRepositoryFs struct {
+	userRepository UserRepository
+}
 
 type RoleFs struct {
 	ID    int
@@ -15,8 +18,10 @@ type RoleFs struct {
 	Users []int
 }
 
-func NewRoleRepository() RoleRepositoryFs {
-	return RoleRepositoryFs{}
+func NewRoleRepository(userRepository UserRepository) RoleRepositoryFs {
+	return RoleRepositoryFs{
+		userRepository: userRepository,
+	}
 }
 
 func (r RoleRepositoryFs) Store(role *Role) error {
@@ -81,9 +86,17 @@ func (r RoleRepositoryFs) FindById(id int) (*Role, error) {
 	unserialize(b, rolefs)
 
 	role := &Role{
-		ID:   rolefs.ID,
-		Name: rolefs.Name,
-		//TODO add users
+		ID:    rolefs.ID,
+		Name:  rolefs.Name,
+		Users: make([]User, 0),
+	}
+
+	for _, userId := range rolefs.Users {
+		user, err := r.userRepository.FindById(userId)
+		if err != nil {
+			return nil, err
+		}
+		role.Users = append(role.Users, *user)
 	}
 
 	return role, nil

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	. "github.com/netbrain/cloudfiler/app/controller"
 	. "github.com/netbrain/cloudfiler/app/entity"
-	. "github.com/netbrain/cloudfiler/app/repository/mem"
+	"github.com/netbrain/cloudfiler/app/repository/fs"
 	. "github.com/netbrain/cloudfiler/app/web"
 	. "github.com/netbrain/cloudfiler/app/web/auth"
 	"io"
@@ -58,7 +58,7 @@ func (h FileHandler) Upload(ctx *Context) interface{} {
 		//TODO allow file to be injected to data obj
 		user, _ := h.authenticator.AuthorizedUser(ctx.Request)
 		for _, fh := range ctx.Request.MultipartForm.File["file"] {
-			fdata := new(FileDataMem) //TODO get FileData impl from configuration
+			fdata := fs.NewFileData() //TODO get FileData impl from configuration
 			file, err := fh.Open()
 			if err != nil {
 				return Error(err)

@@ -1,14 +1,19 @@
 package fs
 
 import (
+	"errors"
 	. "github.com/netbrain/cloudfiler/app/entity"
+	. "github.com/netbrain/cloudfiler/app/repository"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"time"
 )
 
-type FileRepositoryFs struct{}
+type FileRepositoryFs struct {
+	roleRepository RoleRepository
+	userRepository UserRepository
+}
 
 type FileFs struct {
 	ID       int
@@ -20,8 +25,11 @@ type FileFs struct {
 	Uploaded time.Time
 }
 
-func NewFileRepository() FileRepositoryFs {
-	return FileRepositoryFs{}
+func NewFileRepository(userRepository UserRepository, roleRepository RoleRepository) FileRepositoryFs {
+	return FileRepositoryFs{
+		roleRepository: roleRepository,
+		userRepository: userRepository,
+	}
 }
 
 func (r FileRepositoryFs) Store(file *File) error {
@@ -54,7 +62,10 @@ func (r FileRepositoryFs) Store(file *File) error {
 		return err
 	}
 
-	fileData := file.Data.(*FileDataFs)
+	fileData, ok := file.Data.(*FileDataFs)
+	if !ok {
+		return errors.New("filedata is not of type FileDataFs")
+	}
 	oldFileDataPath := fileData.file.Name()
 	newFileDataPath := getPath("filedata", file.ID)
 
@@ -113,10 +124,15 @@ func (r FileRepositoryFs) FindById(id int) (*File, error) {
 		return nil, err
 	}
 
+	owner, err := r.userRepository.FindById(filefs.Owner)
+	if err != nil {
+		return nil, err
+	}
+
 	file := &File{
-		ID:   filefs.ID,
-		Name: filefs.Name,
-		//Owner: filefs.Owner,
+		ID:    filefs.ID,
+		Name:  filefs.Name,
+		Owner: *owner,
 		Tags:  filefs.Tags,
 		Users: make([]User, 0),
 		Roles: make([]Role, 0),
@@ -124,6 +140,24 @@ func (r FileRepositoryFs) FindById(id int) (*File, error) {
 			file: osfile,
 		},
 		Uploaded: filefs.Uploaded,
+	}
+
+	for _, userId := range filefs.Users {
+		user, err := r.userRepository.FindById(userId)
+		if err != nil {
+			return nil, err
+		}
+
+		file.Users = append(file.Users, *user)
+	}
+
+	for _, roleId := range filefs.Roles {
+		role, err := r.roleRepository.FindById(roleId)
+		if err != nil {
+			return nil, err
+		}
+
+		file.Roles = append(file.Roles, *role)
 	}
 
 	return file, nil

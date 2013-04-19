@@ -15,16 +15,34 @@ func cleanup() {
 }
 
 func initFileRepositoryFsTest() {
-	fileRepo = NewFileRepository()
+	userRepo = NewUserRepository()
+	roleRepo = NewRoleRepository(userRepo)
+	fileRepo = NewFileRepository(userRepo, roleRepo)
 }
 
 func createFile(id int, name string) *File {
+
+	user := &User{
+		ID:    1,
+		Email: "test@test.test",
+	}
+	userRepo.Store(user)
+	role := &Role{
+		ID:    id,
+		Name:  name,
+		Users: []User{*user},
+	}
+	roleRepo.Store(role)
+
 	file := &File{
 		ID:       id,
 		Name:     name,
 		Uploaded: time.Now(),
 		Data:     NewFileData(),
 	}
+	file.Owner = *user
+	file.Roles = []Role{*role}
+	file.Users = []User{*user}
 
 	err := fileRepo.Store(file)
 
@@ -89,7 +107,14 @@ func TestFindFileById(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !(file.ID == 1 && file.Name == "Test") {
+	if file.ID != 1 ||
+		file.Name != "Test" ||
+		file.Owner.ID != 1 ||
+		len(file.Roles) != 1 ||
+		file.Roles[0].ID != 1 ||
+		len(file.Users) != 1 ||
+		file.Users[0].ID != 1 {
+
 		t.Logf("%#v", file)
 		t.Fatal("Inconsistent data")
 	}

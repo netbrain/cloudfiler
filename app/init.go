@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/netbrain/cloudfiler/app/controller"
-	"github.com/netbrain/cloudfiler/app/repository/mem"
+	"github.com/netbrain/cloudfiler/app/repository/fs"
 	"github.com/netbrain/cloudfiler/app/web"
 	"github.com/netbrain/cloudfiler/app/web/auth"
 	"github.com/netbrain/cloudfiler/app/web/handler"
@@ -23,9 +23,9 @@ func initApplication() {
 	log.Println("Initializing application dependencies...")
 
 	//init repositories
-	userRepo := mem.NewUserRepository()
-	roleRepo := mem.NewRoleRepository()
-	fileRepo := mem.NewFileRepository()
+	userRepo := fs.NewUserRepository()
+	roleRepo := fs.NewRoleRepository(userRepo)
+	fileRepo := fs.NewFileRepository(userRepo, roleRepo)
 
 	//init interceptor chain
 	authenticator = auth.NewAuthenticator(userRepo, roleRepo, "/auth/login", "/")
