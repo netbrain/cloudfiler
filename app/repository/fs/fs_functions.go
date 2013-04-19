@@ -11,18 +11,31 @@ import (
 )
 
 var idSeq int
-var storagePath, idSeqPath string
+var storagePath, storageTmpPath, idSeqPath string
 
 const (
 	storagePathKey = "storage-path"
+	storageTmpKey  = "storage-tmp-path"
 )
 
 func init() {
 	var present bool
+	var saveConf bool
 	storagePath, present = conf.Config.Repository[storagePathKey]
 	if !present {
 		storagePath = filepath.Join(conf.Config.ApplicationHome, "db")
 		conf.Config.Repository[storagePathKey] = storagePath
+		saveConf = true
+	}
+
+	storageTmpPath, present = conf.Config.Repository[storageTmpKey]
+	if !present {
+		storageTmpPath = filepath.Join(conf.Config.ApplicationHome, "tmp")
+		conf.Config.Repository[storageTmpKey] = storageTmpPath
+		conf.SaveConfig()
+	}
+
+	if saveConf {
 		conf.SaveConfig()
 	}
 

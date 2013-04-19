@@ -10,7 +10,7 @@ type FileDataFs struct {
 }
 
 func NewFileData() *FileDataFs {
-	tmpFile, err := ioutil.TempFile("", "")
+	tmpFile, err := ioutil.TempFile(storageTmpPath, "filedatafs")
 	if err != nil {
 		panic(err)
 	}
