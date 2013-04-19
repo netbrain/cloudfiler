@@ -94,6 +94,43 @@ th.action {
 	cursor: pointer;
 }
 
+#validationErrors {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	text-align: center;	
+}
+
+#validationErrors ul {
+	margin: 0px;
+	padding: 0px;
+	text-align: left;	
+}
+
+#validationErrors > ul {
+	margin: 3px;
+	padding: 0px;
+	display: inline-block;
+}
+
+#validationErrors li {
+	white-space: nowrap;
+	list-style-position:inside;
+}
+
+#validationErrors > ul > li {
+	line-height: 32px;
+	padding: 10px;
+	background-color: #BDE5F8;;
+	color: #00529B;;
+	border: 1px solid #00529B;;
+	opacity: 0.75;
+	list-style-type: none;
+	margin-bottom: 2px;
+	cursor: pointer;
+}
+
 #header {
 	background-color: #333;
 }

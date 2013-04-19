@@ -119,7 +119,7 @@ func (m Muxer) Handle(w http.ResponseWriter, r *http.Request) bool {
 		}
 
 	} else {
-		log.Printf("No handler for path: %s returning status: %v", path, http.StatusNotFound)
+		//log.Printf("No handler for path: %s returning status: %v", path, http.StatusNotFound)
 		view := "error/404"
 		w.WriteHeader(http.StatusNotFound)
 		RenderView(view, w, nil)

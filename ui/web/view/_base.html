@@ -22,7 +22,19 @@
 		{{end}}
 		{{if .ValidationErrors}}
 			<div id="validationErrors">
-				{{.ValidationErrors}}
+				<ul>
+				{{range $i, $v := .ValidationErrors}}
+					<li>{{if $i}}
+							{{$i}}
+						{{end}}	
+						<ul>
+						{{range $v}}
+							<li>{{.}}</li>
+						{{end}}
+						</ul>
+					</li>
+				{{end}}				
+				</ul>
 			</div>
 		{{end}}
 		</div>
@@ -47,7 +59,7 @@
 		</div>
 		<script type="text/javascript">
 			$(document).ready(function(){
-				$('#flash li').click(function(){
+				$('#flash li, #validationErrors li').click(function(){
 					$(this).fadeOut();
 				})
 			});
