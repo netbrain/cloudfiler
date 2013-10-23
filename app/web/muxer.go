@@ -1,7 +1,7 @@
 package web
 
 import (
-	"bufio"
+	//"bufio"
 	"fmt"
 	"log"
 	"net/http"
@@ -87,8 +87,8 @@ func validateAction(action interface{}) {
 }
 
 func (m Muxer) Handle(w http.ResponseWriter, r *http.Request) bool {
-	bw := bufio.NewWriter(w)
-	defer bw.Flush()
+	//bw := bufio.NewWriter(w)
+	//defer bw.Flush()
 	path := r.URL.Path
 	action, ok := m.Action(path)
 
@@ -107,13 +107,13 @@ func (m Muxer) Handle(w http.ResponseWriter, r *http.Request) bool {
 		if !ctx.rawResponse {
 			switch d := ctx.Data.(type) {
 			case *AppError:
-				m.handleAppError(d, w, bw)
+				m.handleAppError(d, w)
 			default:
 				if ctx.IsRedirected() {
 					m.handleRedirect(ctx)
 				} else {
 					//handle view
-					RenderView(view, bw, ctx)
+					RenderView(view, w, ctx)
 				}
 			}
 		}
@@ -121,7 +121,7 @@ func (m Muxer) Handle(w http.ResponseWriter, r *http.Request) bool {
 	} else {
 		//log.Printf("No handler for path: %s returning status: %v", path, http.StatusNotFound)
 		view := "error/404"
-		w.WriteHeader(http.StatusNotFound)
+		//w.WriteHeader(http.StatusNotFound)
 		RenderView(view, w, nil)
 	}
 	return true
@@ -161,15 +161,15 @@ func (m Muxer) getViewForAction(action reflect.Value) string {
 	return filepath.Join(handlerName, actionName)
 }
 
-func (m *Muxer) handleAppError(err *AppError, w http.ResponseWriter, bw *bufio.Writer) {
+func (m *Muxer) handleAppError(err *AppError, w http.ResponseWriter) {
 	errView := fmt.Sprintf("error/%v", err.Status())
 	log.Printf("Err: %s\n%s", err, err.Stack())
-	w.WriteHeader(err.Status())
+	//w.WriteHeader(err.Status())
 	if ViewExists(errView) {
-		bw.WriteString(fmt.Sprintf("Err: %s\n%s", err, err.Stack()))
+		w.Write([]byte(fmt.Sprintf("Err: %s\n%s", err, err.Stack())))
 		//RenderView(errView, bw, err.Error())
 	} else {
-		bw.WriteString(err.Error())
+		w.Write([]byte(err.Error()))
 	}
 }
 

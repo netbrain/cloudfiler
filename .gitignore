@@ -22,3 +22,6 @@ _testmain.go
 *.exe
 *.sublime-project
 *.sublime-workspace
+
+db
+cloudfiler

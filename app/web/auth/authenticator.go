@@ -148,6 +148,7 @@ func (a Authenticator) Handle(w http.ResponseWriter, r *http.Request) bool {
 	if a.IsAuthorized(r) {
 		return true
 	}
+
 	session := NewSession(w, r)
 	session.AddFlash("Login with an account that has sufficient privileges to access this resource.")
 

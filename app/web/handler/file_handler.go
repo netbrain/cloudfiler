@@ -10,7 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"time"
+        "time"
 )
 
 type FileHandler struct {
@@ -104,7 +104,11 @@ func (h FileHandler) Download(ctx *Context) interface{} {
 	if h.hasAccess(file, ctx) {
 		ctx.SetRawResponse(true)
 		ctx.SetHeader("Content-Disposition", "attachment; filename="+file.Name)
+		ctx.SetHeader("Content-Type", "application/octet-stream")
+		ctx.SetHeader("Pragma", "no-cache")
+		ctx.SetHeader("Expires", " 0")
 		http.ServeContent(ctx.Writer, ctx.Request, file.Name, time.Time{}, file.Data)
+		file.Data.Close()
 	} else {
 		//Used doesn't have access
 		return Error(http.StatusForbidden)

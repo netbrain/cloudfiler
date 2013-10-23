@@ -116,7 +116,6 @@ func (r FileRepositoryFs) FindById(id int) (*File, error) {
 	unserialize(b, filefs)
 
 	osfile, err := os.Open(getPath("filedata", id))
-	defer osfile.Close()
 	if err != nil {
 		return nil, err
 	}
