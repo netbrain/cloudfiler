@@ -2,7 +2,6 @@ package handler
 
 import (
 	. "github.com/netbrain/cloudfiler/app/controller"
-	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/repository/mem"
 	. "github.com/netbrain/cloudfiler/app/web"
 	. "github.com/netbrain/cloudfiler/app/web/testing"

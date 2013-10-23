@@ -55,6 +55,10 @@ func (c RoleController) Delete(id int) error {
 		return err
 	}
 
+	if role == nil {
+		return nil
+	}
+
 	if c.isAdminRole(role) {
 		return fmt.Errorf("Can not delete admin role")
 	}

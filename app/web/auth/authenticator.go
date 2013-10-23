@@ -5,7 +5,7 @@ import (
 	. "github.com/netbrain/cloudfiler/app/conf"
 	. "github.com/netbrain/cloudfiler/app/entity"
 	. "github.com/netbrain/cloudfiler/app/repository"
-	. "github.com/netbrain/cloudfiler/app/web/session"
+	//	. "github.com/netbrain/cloudfiler/app/web/session"
 	"net/http"
 )
 
@@ -149,8 +149,9 @@ func (a Authenticator) Handle(w http.ResponseWriter, r *http.Request) bool {
 		return true
 	}
 
-	session := NewSession(w, r)
-	session.AddFlash("Login with an account that has sufficient privileges to access this resource.")
+	//TODO create sessions before interceptor kicks in
+	//session := NewSession(w, r)
+	//session.AddFlash("Login with an account that has sufficient privileges to access this resource.")
 
 	http.Redirect(w, r, a.loginUrl, http.StatusTemporaryRedirect)
 	return false

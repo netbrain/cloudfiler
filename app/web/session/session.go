@@ -28,9 +28,12 @@ func NewSession(w http.ResponseWriter, r *http.Request, name ...string) *Session
 	}
 
 	s := &Session{
-		w:            w,
-		r:            r,
-		sessionStore: sessions.NewCookieStore(Config.CookieStoreAuthenticationKey, Config.CookieStoreEncryptionKey),
+		w: w,
+		r: r,
+		sessionStore: sessions.NewCookieStore(
+			Config.CookieStoreAuthenticationKey,
+			Config.CookieStoreEncryptionKey,
+		),
 	}
 
 	s.session, err = s.sessionStore.Get(r, sessionName)
