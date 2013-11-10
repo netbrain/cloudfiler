@@ -13,14 +13,15 @@ type FileData interface {
 }
 
 type File struct {
-	ID       int
-	Name     string
-	Owner    User
-	Tags     []string
-	Users    []User
-	Roles    []Role
-	Data     FileData
-	Uploaded time.Time
+	ID          int
+	Name        string
+	Owner       User
+	Tags        []string
+	Users       []User
+	Roles       []Role
+	Data        FileData
+	Uploaded    time.Time
+	Description string
 }
 
 func (f *File) Equals(other interface{}) bool {

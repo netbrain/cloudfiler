@@ -28,7 +28,7 @@ func NewAuthenticator(userRepository UserRepository, roleRepository RoleReposito
 	a := Authenticator{
 		userRepository:     userRepository,
 		roleRepository:     roleRepository,
-		sessionStore:       sessions.NewCookieStore(Config.CookieStoreAuthenticationKey, Config.CookieStoreEncryptionKey),
+		sessionStore:       sessions.NewCookieStore(Config.SessionStoreAuthenticationKey, Config.SessionStoreEncryptionKey),
 		loginUrl:           loginUrl,
 		entryUrl:           entryUrl,
 		requiredPrivileges: make(map[string][]string),

@@ -56,7 +56,6 @@ func (r UserRepositoryFs) FindById(id int) (*User, error) {
 
 	user := &User{}
 	unserialize(b, user)
-
 	return user, nil
 }
 

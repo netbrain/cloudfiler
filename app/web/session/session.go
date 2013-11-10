@@ -13,13 +13,12 @@ const (
 type Session struct {
 	w            http.ResponseWriter
 	r            *http.Request
-	sessionStore *sessions.CookieStore
+	sessionStore *sessions.FilesystemStore
 	session      *sessions.Session
 }
 
 func NewSession(w http.ResponseWriter, r *http.Request, name ...string) *Session {
 	var sessionName string
-	var err error
 
 	if len(name) == 0 {
 		sessionName = DefaultSessionName
@@ -30,22 +29,19 @@ func NewSession(w http.ResponseWriter, r *http.Request, name ...string) *Session
 	s := &Session{
 		w: w,
 		r: r,
-		sessionStore: sessions.NewCookieStore(
-			Config.CookieStoreAuthenticationKey,
-			Config.CookieStoreEncryptionKey,
+		sessionStore: sessions.NewFilesystemStore(
+			"",
+			Config.SessionStoreAuthenticationKey,
+			Config.SessionStoreEncryptionKey,
 		),
-	}
-
-	s.session, err = s.sessionStore.Get(r, sessionName)
-
-	if err != nil {
-		panic(err)
 	}
 
 	s.sessionStore.Options = &sessions.Options{
 		Path:   "/",
 		MaxAge: 30 * 60,
 	}
+
+	s.session, _ = s.sessionStore.Get(r, sessionName)
 
 	return s
 }

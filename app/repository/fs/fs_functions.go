@@ -96,8 +96,17 @@ func getPath(folder string, id interface{}) string {
 	return filepath.Join(parent, file)
 }
 
+func getTmpPath() string {
+	err := os.MkdirAll(storageTmpPath, 0700)
+	if err != nil {
+		panic(err)
+	}
+
+	return storageTmpPath
+}
+
 func getTempFile() *os.File {
-	file, err := ioutil.TempFile(getPath(storagePath, ""), "")
+	file, err := ioutil.TempFile(getTmpPath(), "")
 	if err != nil {
 		panic(err)
 	}

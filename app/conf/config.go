@@ -14,12 +14,12 @@ var Config *config
 var userHome, configHome, configFile string
 
 type config struct {
-	ConfigFilePath               string            `json:"-"`
-	ApplicationHome              string            `json:"applicationHome"`
-	ServerAddr                   string            `json:"serverAddr"`
-	CookieStoreAuthenticationKey []byte            `json:"cookieStoreAuthenticationKey"`
-	CookieStoreEncryptionKey     []byte            `json:"cookieStoreEncryptionKey"`
-	Repository                   map[string]string `json:"repository"`
+	ConfigFilePath                string            `json:"-"`
+	ApplicationHome               string            `json:"applicationHome"`
+	ServerAddr                    string            `json:"serverAddr"`
+	SessionStoreAuthenticationKey []byte            `json:"sessionStoreAuthenticationKey"`
+	SessionStoreEncryptionKey     []byte            `json:"sessionStoreEncryptionKey"`
+	Repository                    map[string]string `json:"repository"`
 }
 
 func init() {
@@ -29,12 +29,12 @@ func init() {
 
 	wd, _ := os.Getwd()
 	Config = &config{
-		ConfigFilePath:               configFile,
-		ApplicationHome:              wd,
-		ServerAddr:                   "127.0.0.1:8080",
-		CookieStoreAuthenticationKey: generateRandomKey(32),
-		CookieStoreEncryptionKey:     generateRandomKey(32),
-		Repository:                   make(map[string]string),
+		ConfigFilePath:                configFile,
+		ApplicationHome:               wd,
+		ServerAddr:                    "127.0.0.1:8080",
+		SessionStoreAuthenticationKey: generateRandomKey(32),
+		SessionStoreEncryptionKey:     generateRandomKey(32),
+		Repository:                    make(map[string]string),
 	}
 
 	os.MkdirAll(configHome, 0755)
@@ -46,13 +46,13 @@ func init() {
 			panic(err)
 		}
 		file.Close()
-		SaveConfig()
 	} else {
 		defer file.Close()
 		log.Println("Loading configuration file")
 		unmarshalToConfig(file)
 	}
 	printConfigToStdout()
+	SaveConfig()
 }
 
 func getMarshalledConfig() []byte {

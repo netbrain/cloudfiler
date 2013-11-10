@@ -17,13 +17,14 @@ type FileRepositoryFs struct {
 }
 
 type FileFs struct {
-	ID       int
-	Name     string
-	Owner    int
-	Tags     []string
-	Users    []int
-	Roles    []int
-	Uploaded time.Time
+	ID          int
+	Name        string
+	Owner       int
+	Tags        []string
+	Users       []int
+	Roles       []int
+	Uploaded    time.Time
+	Description string
 }
 
 func NewFileRepository(userRepository UserRepository, roleRepository RoleRepository) FileRepositoryFs {
@@ -31,6 +32,7 @@ func NewFileRepository(userRepository UserRepository, roleRepository RoleReposit
 		roleRepository: roleRepository,
 		userRepository: userRepository,
 	}
+
 }
 
 func (r FileRepositoryFs) Store(file *File) error {
@@ -40,13 +42,14 @@ func (r FileRepositoryFs) Store(file *File) error {
 	}
 
 	data := FileFs{
-		ID:       file.ID,
-		Name:     file.Name,
-		Owner:    file.Owner.ID,
-		Tags:     file.Tags,
-		Users:    make([]int, 0),
-		Roles:    make([]int, 0),
-		Uploaded: file.Uploaded,
+		ID:          file.ID,
+		Name:        file.Name,
+		Owner:       file.Owner.ID,
+		Tags:        file.Tags,
+		Users:       make([]int, 0),
+		Roles:       make([]int, 0),
+		Uploaded:    file.Uploaded,
+		Description: file.Description,
 	}
 
 	for _, user := range file.Users {
@@ -67,13 +70,8 @@ func (r FileRepositoryFs) Store(file *File) error {
 	if !ok {
 		return errors.New("filedata is not of type FileDataFs")
 	}
-	oldFileDataPath := fileData.file.Name()
 	newFileDataPath := getPath("filedata", file.ID)
-
-	err = os.Rename(oldFileDataPath, newFileDataPath)
-	if err != nil {
-		return err
-	}
+	fileData.Rename(newFileDataPath)
 
 	return nil
 }
@@ -116,6 +114,7 @@ func (r FileRepositoryFs) FindById(id int) (*File, error) {
 	unserialize(b, filefs)
 
 	osfile, err := os.Open(getPath("filedata", id))
+	defer osfile.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -135,8 +134,10 @@ func (r FileRepositoryFs) FindById(id int) (*File, error) {
 		Data: &FileDataFs{
 			file: osfile,
 		},
-		Uploaded: filefs.Uploaded,
+		Uploaded:    filefs.Uploaded,
+		Description: filefs.Description,
 	}
+	defer file.Data.Close()
 
 	for _, userId := range filefs.Users {
 		user, err := r.userRepository.FindById(userId)
