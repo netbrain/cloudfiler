@@ -437,6 +437,33 @@ func (h FileHandler) Tags(ctx *Context) interface{} {
 	return nil
 }
 
+func (h FileHandler) Update(ctx *Context) interface{} {
+	if ctx.Method() == "POST" && !ctx.HasValidationErrors() {
+		data := struct {
+			Id          int
+			Description string
+		}{}
+		ctx.InjectData(&data)
+
+		file, err := h.fileController.File(data.Id)
+		if err != nil {
+			return Error(err)
+		} else if file == nil {
+			return Error(http.StatusNotFound)
+		}
+
+		if h.hasAccess(file, ctx) {
+			file.Description = data.Description
+			if err := h.fileController.Update(file); err != nil {
+				return Error(err)
+			}
+			ctx.AddFlash("File successfully updated.")
+		}
+		ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
+	}
+	return nil
+}
+
 func (h FileHandler) hasAccess(file *File, ctx *Context) bool {
 	user, err := h.authenticator.AuthorizedUser(ctx.Request)
 	if err != nil {

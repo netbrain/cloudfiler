@@ -85,6 +85,21 @@ func TestStoreFile(t *testing.T) {
 	}
 }
 
+func TestUpdateFile(t *testing.T) {
+	defer cleanup()
+	initFileRepositoryFsTest()
+
+	//create test file
+	file := createFile(1, "Test")
+	file.Description = "An updated description"
+	fileRepo.Store(file)
+
+	file, _ = fileRepo.FindById(file.ID)
+	if file.Description != "An updated description" {
+		t.Fatalf("Expected an updated description, instead it was: '%s'", file.Description)
+	}
+}
+
 func TestEraseFile(t *testing.T) {
 	defer cleanup()
 	initFileRepositoryFsTest()

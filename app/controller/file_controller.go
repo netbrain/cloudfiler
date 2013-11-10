@@ -44,6 +44,15 @@ func (c *FileController) Create(name string, owner User, data FileData) (*File, 
 	return file, nil
 }
 
+func (c *FileController) Update(file *File) error {
+
+	if err := c.fileRepository.Store(file); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *FileController) Erase(id int) error {
 	return c.fileRepository.Erase(id)
 }

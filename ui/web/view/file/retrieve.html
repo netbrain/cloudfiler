@@ -22,6 +22,18 @@
                 <td>{{.Data.Uploaded}}</td>
             </tr>
             <tr>
+                <th colspan="2">Description</th>                
+            </tr>
+			<tr>
+				<td colspan="2">
+					<form action="/file/update" method="post" autocomplete="off">
+						<input type="hidden" name="id" value="{{.Data.ID}}">
+						<textarea style="width: 100%;" name="description">{{.Data.Description}}</textarea>
+						<input type="submit" value="Save" />
+					</form>
+				</td>
+			</tr>
+            <tr>
                 <th colspan="2">Tags</th>
             </tr>
         	<tr>

@@ -32,7 +32,7 @@ func initApplication() {
 	WebHandler.AddInterceptor(authenticator)
 	WebHandler.AddInterceptor(muxer)
 
-	//init controllers	
+	//init controllers
 	userController := controller.NewUserController(userRepo)
 	roleController := controller.NewRoleController(roleRepo, userRepo)
 	fileController := controller.NewFileController(fileRepo)
@@ -103,7 +103,7 @@ func initRoutes() {
 	addRoute(handler.FileHandler.SetTags, "/file/tags/set")
 	addRoute(handler.FileHandler.Delete, "/file/delete")
 	addRoute(handler.FileHandler.Search, "/file/search")
-
+	addRoute(handler.FileHandler.Update, "/file/update")
 }
 
 func addRoute(handler interface{}, path string, requiredRoles ...string) {

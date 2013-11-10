@@ -19,7 +19,7 @@
 	</thead>
 	<tbody>
     {{ range .Data }}
-    	<tr>
+    	<tr title="{{ .Description }}">
     	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
     	    <td>{{ .Owner }}</td>
 			<td><a href="/file/delete?id={{ .ID }}">Remove</a></td> 
@@ -31,4 +31,11 @@
     {{ end }}
 	</tbody>
 </table>
+<script type="text/javascript">
+	$(function() {
+	  $( document ).tooltip({
+		track:true
+	  });
+	});
+</script>
 {{end}}

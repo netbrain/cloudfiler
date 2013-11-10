@@ -34,7 +34,11 @@ tr:nth-child(even) td {
 }
 
 tr:nth-child(odd) td { 
-	background-color:#ccc; 
+	background-color:#eee; 
+}
+
+tr:hover td {
+	background-color:#f7f7f7;
 }
 
 a:link{
