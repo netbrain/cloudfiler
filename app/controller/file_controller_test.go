@@ -159,3 +159,58 @@ func TestRemoveTags(t *testing.T) {
 		t.Fatal("Did not expect the presence of TestTag2")
 	}
 }
+
+func TestFileSearchName(t *testing.T) {
+	initFileControllerTest()
+	user, _ := userController.Create("test@test.test", "testpasswd")
+	fileController.Create("filename.txt", *user, new(FileDataMem))
+	fileController.Create("filename2.txt", *user, new(FileDataMem))
+
+	results, _ := fileController.FileSearch(*user, "filename")
+	if len(results) != 2 {
+		t.Fatal("expected two results for query filename")
+	}
+	results, _ = fileController.FileSearch(*user, "filename2")
+	if len(results) != 1 {
+		t.Fatal("expected one results for query: filename2")
+	}
+}
+
+func TestFileSearchTag(t *testing.T) {
+	initFileControllerTest()
+	user, _ := userController.Create("test@test.test", "testpasswd")
+	file, _ := fileController.Create("filename.txt", *user, new(FileDataMem))
+	file2, _ := fileController.Create("filename2.txt", *user, new(FileDataMem))
+
+	fileController.AddTags(file, "TestTag", "TestTag2")
+	fileController.AddTags(file2, "TestTag")
+
+	results, _ := fileController.FileSearch(*user, "testtag")
+	if len(results) != 2 {
+		t.Fatal("expected two results for query: testtag")
+	}
+	results, _ = fileController.FileSearch(*user, "TestTag2")
+	if len(results) != 1 {
+		t.Fatal("expected one results for query: TestTag2")
+	}
+}
+
+func TestFileSearchDescription(t *testing.T) {
+	initFileControllerTest()
+	user, _ := userController.Create("test@test.test", "testpasswd")
+	file, _ := fileController.Create("filename.txt", *user, new(FileDataMem))
+	file2, _ := fileController.Create("filename2.txt", *user, new(FileDataMem))
+	file.Description = "Description"
+	file2.Description = "Description2"
+	fileController.Update(file)
+	fileController.Update(file2)
+
+	results, _ := fileController.FileSearch(*user, "Description")
+	if len(results) != 2 {
+		t.Fatal("expected two results for query: Description")
+	}
+	results, _ = fileController.FileSearch(*user, "Description2")
+	if len(results) != 1 {
+		t.Fatal("expected one results for query: Description2")
+	}
+}

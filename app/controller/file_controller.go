@@ -44,6 +44,9 @@ func (c *FileController) Create(name string, owner User, data FileData) (*File, 
 	return file, nil
 }
 
+//Is this really necessary? Currently only used for setting description
+//Maybe we should have a SetDescription method instead?
+//What benefits/pitfalls would the one over the other have?
 func (c *FileController) Update(file *File) error {
 
 	if err := c.fileRepository.Store(file); err != nil {
@@ -222,13 +225,16 @@ FILE:
 			result = append(result, file)
 			continue
 		}
+		if strings.Contains(strings.ToLower(file.Description), query) {
+			result = append(result, file)
+			continue
+		}
 		for _, tag := range file.Tags {
 			if strings.Contains(strings.ToLower(tag), query) {
 				result = append(result, file)
 				continue FILE
 			}
 		}
-
 	}
 	return result, nil
 }
