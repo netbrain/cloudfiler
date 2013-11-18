@@ -1,8 +1,13 @@
 {{define "title"}}Role: {{ .Data.Name }}{{end}}
 
 {{define "body"}}
+{{$roleId := .Data.ID}}
 <h1>Role: {{ .Data.Name }}</h1>
-<table>
+<table class="table table-bordered">
+	<colgroup>
+		<col class="min-width">
+		<col>
+	</colgroup>
 	<tr>
 		<th>ID</th>
 		<td>{{ .Data.ID }}</td>
@@ -12,18 +17,27 @@
 		<td>{{ .Data.Name }}</td>
 	</tr>
 	<tr>
-		<th colspan="2">Users</th>
+		<th colspan="2" class="active">
+			<span>Users</span>
+			<a class="btn btn-primary pull-right" href="/role/users/add?id={{$roleId}}">Add user</a>
+		</th>
 	</tr>
 	<tr>
 		<td colspan="2">				
-			{{$roleId := .Data.ID}}
-			<a href="/role/users/add?id={{$roleId}}">Add user</a>
-			<ul>
-				{{ range .Data.Users }}
-					<li><a href="/user/retrieve?id={{.ID}}">{{ .Email }}</a> - <a href="/role/users/remove?id={{$roleId}}&uid={{ .ID }}">Remove</a></li>
-				{{ end }}
-			</ul>
+			{{ if .Data.Users }}
+				<ul class="list-group">
+					{{ range .Data.Users }}
+						<li class="list-group-item">
+							<a href="/user/retrieve?id={{.ID}}">{{ .Email }}</a>
+							<a class="pull-right btn btn-danger btn-xs" role="button" href="/role/users/remove?id={{$roleId}}&uid={{ .ID }}">Remove</a>
+						</li>
+					{{ end }}
+				</ul>
+			{{ else }}
+				<p class="text-center">No users are added to this group, consider adding some.</p>
+			{{ end }}
 		</td>
 	</tr>		
 </table>
+<a class="btn btn-primary" href="/role/update?id={{.Data.ID}}" role="button">Edit</a>
 {{end}}

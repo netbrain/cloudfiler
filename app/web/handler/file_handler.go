@@ -181,7 +181,7 @@ func (h FileHandler) AddUsers(ctx *Context) interface{} {
 
 		return out
 	}
-
+	ctx.AddFlash("Successfully added user.")
 	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
 	return nil
 }
@@ -215,7 +215,7 @@ func (h FileHandler) RemoveUsers(ctx *Context) interface{} {
 			}
 		}
 	}
-
+	ctx.AddFlash("Successfully removed user.")
 	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
 	return nil
 }
@@ -249,6 +249,7 @@ func (h FileHandler) AddRoles(ctx *Context) interface{} {
 					return Error(err)
 				}
 			}
+			ctx.AddFlash("Successfully added role.")
 			ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
 			return nil
 		}
@@ -297,7 +298,7 @@ func (h FileHandler) RemoveRoles(ctx *Context) interface{} {
 			}
 		}
 	}
-
+	ctx.AddFlash("Successfully removed role.")
 	ctx.Redirect("/file/retrieve?id=" + strconv.Itoa(data.Id))
 	return nil
 }
@@ -403,7 +404,7 @@ func (h FileHandler) Delete(ctx *Context) interface{} {
 			return Error(err)
 		}
 	}
-
+	ctx.AddFlash("Deleted file: " + file.Name)
 	ctx.Redirect(FileHandler.List)
 	return nil
 }

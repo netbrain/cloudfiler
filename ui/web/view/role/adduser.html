@@ -1,16 +1,32 @@
 {{define "title"}}Add user to role{{end}}
 
+{{define "extracss"}}
+<link href="/static/chosen/bootstrap.css" rel="stylesheet">
+<link href="/static/chosen/chosen.min.css" rel="stylesheet">
+{{end}}
+
+{{define "extrajs"}}
+<script type="text/javascript" src="/static/chosen/chosen.jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#users").chosen({width: "95%"}); 
+	});
+</script>
+{{end}}
+
 {{define "body"}}
 <h1>Add user to role: {{.Data.Role.Name}}</h1>
-<form method="post" action="/role/users/add?id={{.Data.Role.ID}}" autocomplete="off">
-  <div>
+<form method="post" action="/role/users/add" autocomplete="off" role="form">
+<input type="hidden" name="id" value="{{.Data.Role.ID}}" />
+<div class="form-group">
+  <select name="uid" id="users" multiple data-placeholder="Select user(s)">
     {{range .Data.Users}}
-    <div>        
-      <input type="checkbox" name="uid" id="uid{{.ID}}" value="{{.ID}}" />
-      <label for="uid{{.ID}}">{{.Email}}</label>
-    </div>
+    <option value="{{.ID}}">{{.Email}}</option>
     {{end}}      
-  </div>
-  <div><input type="submit" value="Add user(s)" /></div>
+  </select>
+</div>
+<div class="form-group">
+<button type="submit" class="btn btn-primary">Add user(s)</button>
+</div>
 </form>
 {{end}}

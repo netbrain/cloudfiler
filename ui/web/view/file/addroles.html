@@ -1,15 +1,28 @@
 {{define "title"}}Add role(s) to file{{end}}
 
+{{define "extracss"}}
+<link href="/static/chosen/bootstrap.css" rel="stylesheet">
+<link href="/static/chosen/chosen.min.css" rel="stylesheet">
+{{end}}
+
+{{define "extrajs"}}
+<script type="text/javascript" src="/static/chosen/chosen.jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#roles").chosen({width: "95%"}); 
+	});
+</script>
+{{end}}
+
 {{define "body"}}
 	<h1>Add role(s) to file: {{.Data.File.Name}}</h1>
     <form method="post" action="/file/roles/add?id={{.Data.File.ID}}" autocomplete="off">
       <div>
-        {{range .Data.Roles}}
-        <div>        
-          <input type="checkbox" name="rid" id="rid-{{.ID}}" value="{{.ID}}" />
-          <label for="rid-{{.ID}}">{{.Name}}</label>
-        </div>
-        {{end}}      
+	  <select name="rid" id="roles" multiple data-placeholder="Select role(s)">
+	    {{range .Data.Roles}}
+	    <option value="{{.ID}}">{{.Name}}</option>
+	    {{end}}      
+	  </select>  
       </div>
       <div><input type="submit" value="Add role(s)" /></div>
     </form>

@@ -1,9 +1,52 @@
 {{define "title"}}File: {{.Data.Name}}{{end}}
 
+{{define "extracss"}}
+<link href="/static/jquery-ui/css/jquery-ui-1.10.2.css" rel="stylesheet">	
+<link href="/static/tag-it/css/jquery.tagit.css" rel="stylesheet">	
+{{end}}
+
+{{define "extrajs"}}
+<script type="text/javascript" src="/static/jquery-ui/js/jquery-ui-1.10.2.min.js"></script>
+<script type="text/javascript" src="/static/tag-it/js/tag-it.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      $.getJSON('/file/tags',function(data){
+          var availableTags = [];
+
+          for(var tag in data){
+            availableTags.push(tag);
+          }
+
+          $("#tags").tagit({
+            availableTags: availableTags,
+            beforeTagRemoved: function(e,ui){
+                $.post('/file/tags/remove',{
+                    id: {{.Data.ID}},
+                    tag: ui.tagLabel
+                });
+            },
+            beforeTagAdded:function(e,ui){
+                if(!ui.duringInitialization){
+                    $.post('/file/tags/add',{
+                        id: {{.Data.ID}},
+                        tag: ui.tagLabel
+                    });
+                }
+            }
+          });
+      }); 
+  });
+</script>
+{{end}}
+
 {{define "body"}}
     {{$fileId := .Data.ID}}
 	<h1>File: {{.Data.Name}}</h1>
-    <table>
+    <table class="table table-bordered">
+		<colgroup>
+		<col class="min-width">
+		<col>
+		</colgroup>
 		<tbody>
         	<tr>
         		<td>Id</td>
@@ -22,19 +65,23 @@
                 <td>{{.Data.Uploaded}}</td>
             </tr>
             <tr>
-                <th colspan="2">Description</th>                
+                <th colspan="2" class="active">Description</th>                
             </tr>
 			<tr>
 				<td colspan="2">
 					<form action="/file/update" method="post" autocomplete="off">
 						<input type="hidden" name="id" value="{{.Data.ID}}">
-						<textarea style="width: 100%;" name="description">{{.Data.Description}}</textarea>
-						<input type="submit" value="Save" />
+						<div class="form-group">
+							<textarea class="form-control" name="description">{{.Data.Description}}</textarea>
+						</div>
+						<div class="form-group">
+							<input class="btn btn-primary" type="submit" value="Save changes" />
+						</div>
 					</form>
 				</td>
 			</tr>
             <tr>
-                <th colspan="2">Tags</th>
+                <th colspan="2" class="active">Tags</th>
             </tr>
         	<tr>
         		<td colspan="2">
@@ -43,65 +90,54 @@
                     <li>{{.}}</li>
                   {{end}}
                 </ul>
-                <script type="text/javascript">
-                  $(document).ready(function() {
-                      $.getJSON('/file/tags',function(data){
-                          var availableTags = [];
-
-                          for(var tag in data){
-                            availableTags.push(tag);
-                          }
-
-                          $("#tags").tagit({
-                            availableTags: availableTags,
-                            beforeTagRemoved: function(e,ui){
-                                $.post('/file/tags/remove',{
-                                    id: {{.Data.ID}},
-                                    tag: ui.tagLabel
-                                });
-                            },
-                            beforeTagAdded:function(e,ui){
-                                if(!ui.duringInitialization){
-                                    $.post('/file/tags/add',{
-                                        id: {{.Data.ID}},
-                                        tag: ui.tagLabel
-                                    });
-                                }
-                            }
-                          });
-                      }); 
-                  });
-                </script>
         		</td>
         	</tr>
             <tr>
-                <th colspan="2">Users</th>
+                <th colspan="2" class="active">
+				Users
+				<a class="btn btn-primary pull-right" href="/file/users/add?id={{$fileId}}">Add user</a>                    
+				</th>
             </tr>
             <tr>
-                <td colspan="2">
-                    <a href="/file/users/add?id={{$fileId}}">Add user</a>                    
-        			<ul>
-        				{{range .Data.Users}}
-        				<li>{{.}} - <a href="/file/users/remove?id={{$fileId}}&uid={{.ID}}">Remove</a></li>
-        				{{end}}
-        			</ul>
+                <td colspan="2">                    
+					{{if .Data.Users}}
+	        			<ul class="list-group">
+			       				{{range .Data.Users}}
+			       				<li class="list-group-item">
+									{{.}}
+									<a class="btn btn-danger btn-xs pull-right" href="/file/users/remove?id={{$fileId}}&uid={{.ID}}">Remove</a>
+								</li>
+			       				{{end}}
+	        			</ul>
+					{{else}}
+						<p class="text-center">No users has access to this file, consider adding some.</p>
+					{{end}}
         		</td>
         	</tr>
             <tr>
-                <th colspan="2">Roles</th>
+                <th colspan="2" class="active">
+					Roles
+					<a class="btn btn-primary pull-right" href="/file/roles/add?id={{$fileId}}">Add role</a>
+				</th>
             </tr>
             <tr>
                 <td colspan="2">
-                    <a href="/file/roles/add?id={{$fileId}}">Add role</a>
-        			<ul>
-        				{{range .Data.Roles}}
-        				<li>{{.}} - <a href="/file/roles/remove?id={{$fileId}}&rid={{.ID}}">Remove</a></li></li>
-        				{{end}}
-        			</ul>
+					{{if .Data.Roles}}
+        				<ul class="list-group">
+	        				{{range .Data.Roles}}
+	        				<li class="list-group-item">
+								{{.}}
+								<a class="btn btn-danger btn-xs pull-right" href="/file/roles/remove?id={{$fileId}}&rid={{.ID}}">Remove</a>
+							</li>
+	        				{{end}}
+        				</ul>
+					{{else}}
+						<p class="text-center">No roles has access to this file, consider adding some.</p>
+					{{end}}						
         		</td>
         	</tr>
 			<tr>
-        		<td colspan="2"><a href="/file/download?id={{$fileId}}">Download</a></td>
+        		<td colspan="2"><a class="btn btn-default" href="/file/download?id={{$fileId}}">Download</a></td>
         	</tr>        	        		
 		</tbody>
     </table>

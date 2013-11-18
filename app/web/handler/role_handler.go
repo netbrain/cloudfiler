@@ -83,7 +83,10 @@ func (h RoleHandler) Update(ctx *Context) interface{} {
 		if err := h.roleController.Update(data.Id, data.Name); err != nil {
 			return Error(err)
 		}
-		ctx.Redirect(RoleHandler.List)
+		ctx.AddFlash("Role updated successfully.")
+		//TODO make it possible to add parameters to redirect actions
+		// e.g ctx.Redirect(RoleHandler.Retrieve,data.Id)
+		ctx.Redirect("/role/retrieve?id=" + strconv.Itoa(data.Id))
 		return nil
 
 	}
@@ -98,6 +101,7 @@ func (h RoleHandler) Delete(ctx *Context) interface{} {
 		return Error(err)
 	}
 
+	ctx.AddFlash(fmt.Sprintf("Deleted role with id: %v", data.Id))
 	ctx.Redirect(RoleHandler.List)
 	return nil
 }
@@ -132,6 +136,7 @@ func (h RoleHandler) AddUser(ctx *Context) interface{} {
 		}
 		//TODO make it possible to add parameters to redirect actions
 		// e.g ctx.Redirect(RoleHandler.Retrieve,data.Id)
+		ctx.AddFlash("User added.")
 		ctx.Redirect("/role/retrieve?id=" + strconv.Itoa(data.Id))
 		return nil
 	}
@@ -174,8 +179,10 @@ func (h RoleHandler) RemoveUser(ctx *Context) interface{} {
 		}
 	} else {
 		ctx.AddFlash("Cannot remove the only Admin user in the application")
+		ctx.Redirect(ctx.GetRequestHeader("Referer"))
+		return nil
 	}
-
+	ctx.AddFlash("User removed.")
 	ctx.Redirect(ctx.GetRequestHeader("Referer"))
 	return nil
 }

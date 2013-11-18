@@ -1,42 +1,48 @@
-{{define "title"}}Search results for {{.Params "q" }}{{end}}
+{{define "title"}}Search results for {{.Params "query" }}{{end}}
 
 {{define "body"}}
 <h1>Search results for "{{.Params "query" }}"</h1>
-<table>
+<table class="table">
 	<thead>
 		<tr>
-			<td colspan="3">
-				<form action="/file/search">
-					<input type="search" placeholder="Search" name="query" value="{{.Params "query" }}" style="float:right;"/>
-				</form>				
-			</td>
-		</tr>		
-		<tr>
 			<th>Name</th>
-			<th>Tags</th>
-			<th>Owner</th>
+			<th class="min-width">Owner</th>
+			<th class="min-width"></th>
 		</tr>
 	</thead>
 	<tbody>
     {{ range .Data }}
     	<tr>
     	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
+    	    <td><a href="/user/retrieve?id={{ .Owner.ID }}">{{ .Owner }}</a></td>
+			
 			<td>
+				<a class="btn btn-danger btn-xs" href="/file/delete?id={{.ID}}" role="button">Remove</a>
+			</td> 				
+    	</tr>
+		{{if or .Description .Tags }}
+			<tr>
+				<td colspan="3" class="active">
+					<dl class="dl-horizontal">
 				{{if .Tags}}
-					<ul>
+					<dt>Tags</dt>
+					<dd>
 						{{range .Tags}}
-							<li>{{.}}</li>
+							<span class="label label-primary">{{.}}</span>
 						{{end}}
-					</ul>
+					</dd>
 				{{else}}
 					Not tagged
-				{{end}}
-			</td>
-    	    <td>{{ .Owner }}</td>
-    	</tr>
+				{{end}}			
+					  <dt>Description</dt>
+					  <dd>{{.Description}}</dd>
+					</dl>
+				</td>
+			</tr>
+		{{end}}
     {{else}}
     	<tr>
-    		<td colspan="3" style="text-align:center;">No files found for query "{{.Params "query"}}"</td>
+    		<td colspan="3" class="active" style="text-align:center;">No files found for query "{{.Params "query" }}"</td>
     	</tr>
     {{ end }}
 	</tbody>

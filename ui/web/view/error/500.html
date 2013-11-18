@@ -1,5 +1,13 @@
 {{define "title"}}500 Internal Server Error{{end}}
 
 {{define "body"}}
-500 Internal Server Error
+<h1>500 Internal Server Error</h1>
+<p>Ouch.. something wen't wrong. Please file a report of this incident.</p>
+<hr />
+<div class="panel panel-danger">
+  <div class="panel-heading">{{.Data.Error}}</div>
+  <div class="panel-body">
+    <pre>{{.Data.Stack | printf "%s"}}</pre>
+  </div>
+</div>
 {{end}}

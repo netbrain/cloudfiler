@@ -1,16 +1,32 @@
 {{define "title"}}Add user(s) to file{{end}}
 
+{{define "extracss"}}
+<link href="/static/chosen/bootstrap.css" rel="stylesheet">
+<link href="/static/chosen/chosen.min.css" rel="stylesheet">
+{{end}}
+
+{{define "extrajs"}}
+<script type="text/javascript" src="/static/chosen/chosen.jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#users").chosen({width: "95%"}); 
+	});
+</script>
+{{end}}
+
 {{define "body"}}
 	<h1>Add user(s) to file: {{.Data.File.Name}}</h1>
-    <form method="post" action="/file/users/add?id={{.Data.File.ID}}" autocomplete="off">
-      <div>
-        {{range .Data.Users}}
-        <div>        
-          <input type="checkbox" name="uid" id="uid-{{.ID}}" value="{{.ID}}" />
-          <label for="uid-{{.ID}}">{{.Email}}</label>
-        </div>
-        {{end}}      
+    <form method="post" action="/file/users/add" autocomplete="off" role="form">
+	<input type="hidden" name="id" value="{{.Data.File.ID}}" />
+	  <div class="form-group">
+	  <select name="uid" id="users" multiple data-placeholder="Select user(s)">
+	    {{range .Data.Users}}
+	    <option value="{{.ID}}">{{.Email}}</option>
+	    {{end}}      
+	  </select>     
       </div>
-      <div><input type="submit" value="Add user(s)" /></div>
+	<div class="form-group">
+	<button type="submit" class="btn btn-primary">Add user(s)</button>
+	</div>
     </form>
 {{end}}

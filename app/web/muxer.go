@@ -107,7 +107,7 @@ func (m Muxer) Handle(w http.ResponseWriter, r *http.Request) bool {
 		if !ctx.rawResponse {
 			switch d := ctx.Data.(type) {
 			case *AppError:
-				m.handleAppError(d, w)
+				m.handleAppError(ctx, d, w)
 			default:
 				if ctx.IsRedirected() {
 					m.handleRedirect(ctx)
@@ -121,7 +121,7 @@ func (m Muxer) Handle(w http.ResponseWriter, r *http.Request) bool {
 	} else {
 		//log.Printf("No handler for path: %s returning status: %v", path, http.StatusNotFound)
 		view := "error/404"
-		//w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
 		RenderView(view, w, nil)
 	}
 	return true
@@ -161,13 +161,13 @@ func (m Muxer) getViewForAction(action reflect.Value) string {
 	return filepath.Join(handlerName, actionName)
 }
 
-func (m *Muxer) handleAppError(err *AppError, w http.ResponseWriter) {
+func (m *Muxer) handleAppError(ctx *Context, err *AppError, w http.ResponseWriter) {
 	errView := fmt.Sprintf("error/%v", err.Status())
 	log.Printf("Err: %s\n%s", err, err.Stack())
-	//w.WriteHeader(err.Status())
+	w.WriteHeader(err.Status())
 	if ViewExists(errView) {
-		w.Write([]byte(fmt.Sprintf("Err: %s\n%s", err, err.Stack())))
-		//RenderView(errView, bw, err.Error())
+		//w.Write([]byte(fmt.Sprintf("Err: %s\n%s", err, err.Stack())))
+		RenderView(errView, w, ctx)
 	} else {
 		w.Write([]byte(err.Error()))
 	}

@@ -2,21 +2,19 @@
 
 {{define "body"}}
 <h1>{{template "title" .}}</h1>
-<form method="post" action="/init" autocomplete="off">
-  <div>
-    <div>
-      <span>Email:</span>
-      <span><input type="email" name="email" autofocus="autofocus" required="required" /></span>
+<p>Please provide user details for the administration user in order for the application to start the initialization process.</p>
+<form method="post" action="/init" autocomplete="off" role="form" class="form-horizontal">
+	<div class="form-group">
+      <input type="email" name="email" autofocus="autofocus" required="required" placeholder="Email" class="form-control"/>
     </div>
-    <div>
-      <span>Password:</span>
-      <span><input type="password" name="password" required="required" pattern=".{8,16}"/></span>
+	<div class="form-group">
+      <input type="password" name="password" required="required" pattern=".{8,16}" placeholder="Password" class="form-control"/>
     </div>
-    <div>
-      <span>Password (again):</span>
-      <span><input type="password" name="password-again" required="required"/></span>
-    </div>        
-  </div>
-  <div><input type="submit" value="Create admin user" /></div>
+	<div class="form-group">
+      <input type="password" name="password-again" required="required" placeholder="Password (again)" class="form-control"/>    
+	</div>
+	<div class="form-group">
+		<button class="btn btn-lg btn-primary btn-block" type="submit">Initialize application</button>	
+	</div>
 </form>
 {{end}}
