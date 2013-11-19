@@ -23,19 +23,19 @@
 		{{if or .Description .Tags }}
 			<tr>
 				<td colspan="3" class="active">
-					<dl class="dl-horizontal">
-				{{if .Tags}}
-					<dt>Tags</dt>
-					<dd>
+					<dl class="dl-horizontal">				
+						{{if .Tags}}
+						<dt>Tags</dt>
+						<dd>
 						{{range .Tags}}
-							<span class="label label-primary">{{.}}</span>
+							<span class="label label-default">{{.}}</span>
+						{{end}}										
+					  	</dd>		
 						{{end}}
-					</dd>
-				{{else}}
-					Not tagged
-				{{end}}			
-					  <dt>Description</dt>
-					  <dd>{{.Description}}</dd>
+						{{if .Description}}
+					  	<dt>Description</dt>
+					  	<dd>{{.Description}}</dd>
+						{{end}}
 					</dl>
 				</td>
 			</tr>

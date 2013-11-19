@@ -19,6 +19,9 @@
 
           $("#tags").tagit({
             availableTags: availableTags,
+			autocomplete: {delay: 0, minLength: 0},
+			showAutocompleteOnFocus: true,
+			placeholderText: "Start typing tags here.",
             beforeTagRemoved: function(e,ui){
                 $.post('/file/tags/remove',{
                     id: {{.Data.ID}},
