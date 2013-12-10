@@ -219,20 +219,24 @@ func (c *FileController) FileSearch(user User, query string) ([]File, error) {
 		return files, err
 	}
 
+	words := strings.Split(query, " ")
+
 FILE:
 	for _, file := range files {
-		if strings.Contains(strings.ToLower(file.Name), query) {
-			result = append(result, file)
-			continue
-		}
-		if strings.Contains(strings.ToLower(file.Description), query) {
-			result = append(result, file)
-			continue
-		}
-		for _, tag := range file.Tags {
-			if strings.Contains(strings.ToLower(tag), query) {
+		for _, word := range words {
+			if strings.Contains(strings.ToLower(file.Name), word) {
 				result = append(result, file)
 				continue FILE
+			}
+			if strings.Contains(strings.ToLower(file.Description), word) {
+				result = append(result, file)
+				continue FILE
+			}
+			for _, tag := range file.Tags {
+				if strings.Contains(strings.ToLower(tag), word) {
+					result = append(result, file)
+					continue FILE
+				}
 			}
 		}
 	}

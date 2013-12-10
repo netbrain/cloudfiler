@@ -214,3 +214,14 @@ func TestFileSearchDescription(t *testing.T) {
 		t.Fatal("expected one results for query: Description2")
 	}
 }
+
+func TestFileSearchLongName(t *testing.T) {
+	initFileControllerTest()
+	user, _ := userController.Create("test@test.test", "testpasswd")
+	fileController.Create("cookie recipie.txt", *user, new(FileDataMem))
+
+	results, _ := fileController.FileSearch(*user, "cookie recipie")
+	if len(results) != 1 {
+		t.Fatal("expected one result")
+	}
+}
