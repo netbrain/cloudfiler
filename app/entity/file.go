@@ -24,6 +24,8 @@ type File struct {
 	Description string
 }
 
+type ByUploaded []File
+
 func (f *File) Equals(other interface{}) bool {
 	switch o := other.(type) {
 	case File:
@@ -32,4 +34,20 @@ func (f *File) Equals(other interface{}) bool {
 		return f.ID == o.ID
 	}
 	return false
+}
+
+func (f *File) FormattedUploaded() string {
+	return f.Uploaded.Format(time.RFC822)
+}
+
+func (u ByUploaded) Len() int {
+	return len(u)
+}
+
+func (u ByUploaded) Swap(i, j int) {
+	u[i], u[j] = u[j], u[i]
+}
+
+func (u ByUploaded) Less(i, j int) bool {
+	return u[j].Uploaded.Before(u[i].Uploaded)
 }

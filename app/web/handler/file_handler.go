@@ -9,6 +9,7 @@ import (
 	. "github.com/netbrain/cloudfiler/app/web/auth"
 	"io"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -49,6 +50,8 @@ func (h FileHandler) List(ctx *Context) interface{} {
 	if err != nil {
 		return Error(err)
 	}
+
+	sort.Sort(ByUploaded(data))
 
 	return data
 }

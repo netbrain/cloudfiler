@@ -1,29 +1,33 @@
 {{define "title"}}Search results for {{.Params "query" }}{{end}}
 
+{{define "extracss"}}
+<link href="/static/tablesorter/css/tablesorter.theme.css" rel="stylesheet">
+{{end}}
+
+{{define "extrajs"}}
+<script type="text/javascript" src="/static/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="/static/tablesorter/js/jquery.tablesorter.widgets.js"></script>
+<script type="text/javascript" src="/static/tablesorter/js/jquery.tablesorter.pager.js"></script>
+<script type="text/javascript" src="/static/app/js/tablesorter.filetable.js"></script>
+{{end}}
+
 {{define "body"}}
 <h1>Search results for "{{.Params "query" }}"</h1>
-<table class="table">
+<table id="filetable" class="table">
 	<thead>
 		<tr>
 			<th>Name</th>
+			<th class="min-width">Date</th>
 			<th class="min-width">Owner</th>
-			<th class="min-width"></th>
 		</tr>
 	</thead>
 	<tbody>
     {{ range .Data }}
     	<tr>
-    	    <td><a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a></td>
-    	    <td><a href="/user/retrieve?id={{ .Owner.ID }}">{{ .Owner }}</a></td>
-			
-			<td>
-				<a class="btn btn-danger btn-xs" href="/file/delete?id={{.ID}}" role="button">Remove</a>
-			</td> 				
-    	</tr>
-		{{if or .Description .Tags }}
-			<tr>
-				<td colspan="3" class="active">
-					<dl class="dl-horizontal">				
+    	    <td>
+				<a href="/file/retrieve?id={{ .ID }}">{{ .Name }}</a>
+				{{if or .Description .Tags }}
+					<dl class="dl-horizontal well">				
 						{{if .Tags}}
 						<dt>Tags</dt>
 						<dd>
@@ -37,14 +41,38 @@
 					  	<dd>{{.Description}}</dd>
 						{{end}}
 					</dl>
-				</td>
-			</tr>
-		{{end}}
+				{{end}}
+			</td>
+    	    <td style="white-space: nowrap;">
+				{{ .FormattedUploaded }}
+			</td>			
+    	    <td>
+				<a href="/user/retrieve?id={{ .Owner.ID }}">{{ .Owner }}</a>
+			</td>				
+    	</tr>
     {{else}}
     	<tr>
     		<td colspan="3" class="active" style="text-align:center;">No files found for query "{{.Params "query" }}"</td>
     	</tr>
     {{ end }}
 	</tbody>
+	<tfoot>
+		<tr>
+			<th colspan="7" class="ts-pager form-horizontal">
+				<button type="button" class="btn first"><i class="icon-step-backward glyphicon glyphicon-step-backward"></i></button>
+				<button type="button" class="btn prev"><i class="icon-arrow-left glyphicon glyphicon-backward"></i></button>
+				<span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+				<button type="button" class="btn next"><i class="icon-arrow-right glyphicon glyphicon-forward"></i></button>
+				<button type="button" class="btn last"><i class="icon-step-forward glyphicon glyphicon-step-forward"></i></button>
+				<select class="pagesize input-mini" title="Select page size">
+					<option selected="selected" value="10">10</option>
+					<option value="20">20</option>
+					<option value="30">30</option>
+					<option value="40">40</option>
+				</select>
+				<select class="pagenum input-mini" title="Select page number"></select>
+			</th>
+		</tr>
+	</tfoot>	
 </table>
 {{end}}

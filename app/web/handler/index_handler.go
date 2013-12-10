@@ -20,9 +20,7 @@ func NewIndexHandler(authenticator Authenticator, userController UserController)
 
 func (h IndexHandler) Index(ctx *Context) interface{} {
 
-	if c, _ := h.userController.Count(); c > 0 {
-		ctx.Redirect(FileHandler.List)
-	} else {
+	if c, _ := h.userController.Count(); c == 0 {
 		ctx.Redirect(InitHandler.Init)
 	}
 
