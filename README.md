@@ -9,7 +9,7 @@ A simple web based access controlled file archive. Upload files and share them w
 
 Download the application by any of these means:
 
-* go : `go get https://github.com/netbrain/cloudfiler`
+* go : `go get github.com/netbrain/cloudfiler`
 * git: `git clone https://github.com/netbrain/cloudfiler`
 * zip: https://github.com/netbrain/cloudfiler/archive/master.zip
 
