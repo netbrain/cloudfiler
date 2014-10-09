@@ -30,5 +30,3 @@ edit the file: `$HOME/.cloudfiler/config` and restart cloudfiler.
 
 When you access the application for the first time you are prompted by an initialization process which
 creates the first admin user of the system.
-
-[ ![Codeship Status for netbrain/cloudfiler](https://www.codeship.io/projects/2fa20210-31ad-0132-68d6-7e57058c4501/status)](https://www.codeship.io/projects/40156)
