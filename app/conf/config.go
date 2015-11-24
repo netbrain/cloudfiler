@@ -31,7 +31,7 @@ func init() {
 	Config = &config{
 		ConfigFilePath:                configFile,
 		ApplicationHome:               wd,
-		ServerAddr:                    "127.0.0.1:8080",
+		ServerAddr:                    "0.0.0.0:8080",
 		SessionStoreAuthenticationKey: generateRandomKey(32),
 		SessionStoreEncryptionKey:     generateRandomKey(32),
 		Repository:                    make(map[string]string),
